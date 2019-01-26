@@ -1,9 +1,9 @@
 package cs455.overlay.wireformats;
 
-public class LinkWeights implements Event {
+public class RegisterResponse implements Event {
     @Override
     public int getType() {
-        return 5;
+        return 1;
     }
 
     @Override

@@ -3,8 +3,8 @@ package cs455.overlay.wireformats;
 public class Message implements Event{
 
     @Override
-    public Type getType() {
-        return null;
+    public int getType() {
+        return 10;
     }
 
     @Override

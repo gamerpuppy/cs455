@@ -1,9 +1,9 @@
 package cs455.overlay.wireformats;
 
-public class Register implements Event {
+public class DeregisterRequest implements Event {
     @Override
-    public Type getType() {
-        return null;
+    public int getType() {
+        return 2;
     }
 
     @Override

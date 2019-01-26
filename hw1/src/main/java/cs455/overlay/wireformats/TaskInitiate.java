@@ -2,8 +2,8 @@ package cs455.overlay.wireformats;
 
 public class TaskInitiate implements Event {
     @Override
-    public Type getType() {
-        return null;
+    public int getType() {
+        return 6;
     }
 
     @Override

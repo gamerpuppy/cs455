@@ -1,9 +1,9 @@
 package cs455.overlay.wireformats;
 
-public class TaskSummaryRequest implements Event {
+public class TrafficSummaryRequest implements Event {
     @Override
-    public Type getType() {
-        return null;
+    public int getType() {
+        return 8;
     }
 
     @Override
