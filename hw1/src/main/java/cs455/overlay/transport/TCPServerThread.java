@@ -47,9 +47,9 @@ public class TCPServerThread implements Runnable {
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.configureBlocking(false);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        this.serverSocketChannel.socket().bind(new InetSocketAddress("0.0.0.0", port));
-        Logger.log("bound to "+serverSocketChannel.socket().getLocalPort());
+        this.serverSocketChannel.socket().bind(new InetSocketAddress("129.82.44.61", port));
 
+        Logger.log("bound to "+serverSocketChannel.socket().getLocalPort());
     }
 
     @Override
@@ -115,7 +115,12 @@ public class TCPServerThread implements Runnable {
                 port++;
             }
         }
+        if(!s.isBound()){
+            throw new IOException();
+        }
+
         Logger.log("bound to "+s.getLocalPort());
+        Logger.log(s.getInetAddress().getHostAddress());
 
     }
 
