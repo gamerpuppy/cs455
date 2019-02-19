@@ -23,6 +23,9 @@ public class TCPServerThread implements Runnable {
     private Selector selector;
     private ServerSocketChannel serverSocketChannel;
 
+    public String ip = null;
+    public int port = 0;
+
     public SocketChannel registry = null;
 //    private Map<SocketChannel, >
 
@@ -40,6 +43,11 @@ public class TCPServerThread implements Runnable {
         this.registry = SocketChannel.open(regAddr);
         this.registry.configureBlocking(false);
         this.registry.register(this.selector, SelectionKey.OP_READ);
+
+        this.ip = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.port = serverSocketChannel.socket().getLocalPort();
+
+        Logger.log("bound to " + ip+":"+port);
     }
 
     public void setupRegistry(int port) throws IOException {
@@ -47,9 +55,12 @@ public class TCPServerThread implements Runnable {
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.configureBlocking(false);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        this.serverSocketChannel.socket().bind(new InetSocketAddress("129.82.44.61", port));
+        this.serverSocketChannel.socket().bind(new InetSocketAddress("0.0.0.0", port));
 
-        Logger.log("bound to "+serverSocketChannel.socket().getLocalPort());
+        this.ip = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.port = serverSocketChannel.socket().getLocalPort();
+
+        Logger.log("bound to " + ip+":"+port);
     }
 
     @Override
@@ -120,7 +131,6 @@ public class TCPServerThread implements Runnable {
         }
 
         Logger.log("bound to "+s.getLocalPort());
-        Logger.log(s.getInetAddress().getHostAddress());
 
     }
 

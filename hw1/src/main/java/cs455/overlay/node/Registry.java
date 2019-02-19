@@ -7,6 +7,7 @@ import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.DeregisterRequest;
+import javafx.collections.transformation.SortedList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,12 +20,10 @@ public class Registry implements Node {
 
     List<SocketChannel> channels;
     Map<SocketChannel, NodeInfo> nodeInfoMap;
-    List<Link> linkList;
 
     private Registry(){
         this.channels = new ArrayList<>();
         this.nodeInfoMap = new HashMap<>();
-        this.linkList = new ArrayList<>();
     }
 
     @Override
@@ -111,8 +110,105 @@ public class Registry implements Node {
     }
 
     private synchronized void listWeights(){
-        for(Link link : this.linkList){
-            System.out.println(link.toString());
+        for(SocketChannel channel : this.channels){
+            NodeInfo node = this.nodeInfoMap.get(channel);
+            for(NodeInfo dest : node.links.keySet()){
+                if(node.nodeId < dest.nodeId)
+                    System.out.println(node.toString() + " " + dest.toString() + " " + node.links.get(dest));
+            }
+        }
+    }
+
+    private synchronized void setupOverlay(int connections){
+        Logger.log("setting up overlay with "+connections+" connections");
+
+        Random rand = new Random();
+
+        boolean found = false;
+        int iterations = 0;
+        while(!found && iterations < 500) {
+
+            ArrayList<NodeInfo> availableNodes = new ArrayList<>();
+
+            for (int i = 0; i < channels.size(); i++) {
+                NodeInfo node = this.nodeInfoMap.get(channels.get(i));
+                int idx = (i + 1) % channels.size();
+                NodeInfo node2 = this.nodeInfoMap.get(channels.get(idx));
+                int weight = rand.nextInt(10) + 1;
+
+                if(!node.links.containsKey(node2))
+                    node.links.put(node2, weight);
+
+                if(!node2.links.containsKey(node))
+                    node2.links.put(node, weight);
+
+                availableNodes.add(node);
+            }
+
+            while(availableNodes.size() > 1){
+                int idx1 = rand.nextInt(availableNodes.size());
+                NodeInfo node1 = availableNodes.get(idx1);
+                int idx2 = 0;
+
+                int i = 0;
+                for(; i < 100; i++) {
+                    idx2 = rand.nextInt(availableNodes.size());
+                    NodeInfo node2 = availableNodes.get(idx2);
+
+                    if(node1 == node2)
+                        continue;
+
+                    if (!node1.links.containsKey(node2))
+                        break;
+                }
+                if(i == 100) {
+                    break;
+                }
+
+                NodeInfo node2 = availableNodes.get(idx2);
+
+                if(node1.links.size() >=  connections) {
+                    availableNodes.remove(node1);
+                    continue;
+                }
+
+                if(node2.links.size() >=  connections) {
+                    availableNodes.remove(node2);
+                    continue;
+                }
+
+                int weight = rand.nextInt(10) + 1;
+                node1.links.put(node2, weight);
+                node2.links.put(node1, weight);
+
+
+
+                if(node1.links.size() == connections)
+                    availableNodes.remove(node1);
+
+                if(node2.links.size() == connections)
+                    availableNodes.remove(node2);
+            }
+
+            if(availableNodes.size() == 0)
+                found = true;
+            else
+                clearOverlay();
+
+            iterations++;
+        }
+
+        if(iterations < 500)
+            Logger.log("found a good overlay in " + iterations + "iterations");
+        else
+            Logger.log("could not find a good overlay in " + iterations + "iterations");
+
+    }
+
+    private synchronized void clearOverlay(){
+        for(SocketChannel channel : this.channels){
+            NodeInfo node = this.nodeInfoMap.get(channel);
+            node.links = new HashMap<>();
         }
     }
 
@@ -141,12 +237,20 @@ public class Registry implements Node {
 
                 if(instruction.equals("list-messaging-nodes")){
                     reg.listMessagingNodes();
+
                 } else if(instruction.equals("list-weights")){
                     reg.listWeights();
+
                 } else if(instruction.matches("setup-overlay \\d+")){
+                    int connections = Integer.parseInt(instruction.substring(14));
+                    reg.setupOverlay(connections);
 
                 } else if(instruction.equals("send-overlay-link-weights")){
 
+                } else if(instruction.equals("clear-overlay")){
+                    reg.clearOverlay();
+                } else if(instruction.equals("port")){
+                    System.out.println(Node.getMyIp() + ":" + Node.getMyPort());
                 }
 
             }
@@ -156,16 +260,18 @@ public class Registry implements Node {
         }
     }
 
-    class NodeInfo {
+    class NodeInfo{
 
         final int nodeId;
         final String ipAddr;
         final int port;
+        Map<NodeInfo, Integer> links;
 
         NodeInfo(int nodeId, String ipAddr, int port){
             this.nodeId = nodeId;
             this.ipAddr = ipAddr;
             this.port = port;
+            links = new HashMap<>();
         }
 
         @Override
@@ -175,21 +281,4 @@ public class Registry implements Node {
 
     }
 
-    class Link {
-
-        final NodeInfo a;
-        final NodeInfo b;
-        final int weight;
-
-        Link(NodeInfo a, NodeInfo b){
-            this.a = a;
-            this.b = b;
-            weight = new Random().nextInt();
-        }
-
-        @Override
-        public String toString() {
-            return a.toString() + " " + b.toString() + " " + weight;
-        }
-    }
 }
