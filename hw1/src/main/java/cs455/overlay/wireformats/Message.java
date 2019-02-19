@@ -1,14 +1,15 @@
 package cs455.overlay.wireformats;
 
+import java.nio.ByteBuffer;
+
 public class Message implements Event{
 
-    @Override
-    public int getType() {
-        return 10;
+    public Message(ByteBuffer buf){
+
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 10;
     }
 }

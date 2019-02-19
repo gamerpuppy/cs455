@@ -1,13 +1,21 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.util.BufUtils;
+
+import java.nio.ByteBuffer;
+
 public class RegisterResponse implements Event {
-    @Override
-    public int getType() {
-        return 1;
+
+    public final boolean status;
+    public final String info;
+
+    public RegisterResponse(ByteBuffer buf){
+        this.status = buf.get() != 0;
+        this.info = BufUtils.getString(buf);
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 1;
     }
 }

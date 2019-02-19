@@ -1,19 +1,16 @@
 package cs455.overlay.wireformats;
 
+import java.nio.ByteBuffer;
+
 public class MessagingNodesList implements Event {
 
+
+    public MessagingNodesList(ByteBuffer buf){
+
+    }
+
     @Override
-    public int getType() {
+    public int getCode() {
         return 4;
     }
-
-    @Override
-    public byte[] getBytes() {
-        return new byte[0];
-    }
-
-    public MessagingNodesList(byte data[]){
-
-    }
-
 }

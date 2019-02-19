@@ -1,13 +1,21 @@
 package cs455.overlay.wireformats;
 
+import cs455.overlay.util.BufUtils;
+
+import java.nio.ByteBuffer;
+
 public class DeregisterRequest implements Event {
-    @Override
-    public int getType() {
-        return 2;
+
+    public final String ipAddress;
+    public final int port;
+
+    public DeregisterRequest(ByteBuffer buf){
+        ipAddress = BufUtils.getString(buf);
+        port = buf.getInt();
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 2;
     }
 }

@@ -1,55 +1,131 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.node.Node;
+import cs455.overlay.util.Logger;
+import cs455.overlay.wireformats.Event;
+import cs455.overlay.wireformats.EventFactory;
+
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 
 public class TCPServerThread implements Runnable {
 
+    private static TCPServerThread theInstance = null;
+
+    private Node node;
+    private Selector selector;
+    private ServerSocketChannel serverSocketChannel;
+
+    public SocketChannel registry = null;
+//    private Map<SocketChannel, >
+
+    public TCPServerThread(Node node){
+        this.node = node;
+    }
+
+    public void setupMessaging(InetSocketAddress regAddr, int portToBind) throws IOException{
+        this.selector = Selector.open();
+        this.serverSocketChannel = ServerSocketChannel.open();
+        this.serverSocketChannel.configureBlocking(false);
+        this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        this.bindServerSocket(serverSocketChannel.socket(), portToBind);
+
+        this.registry = SocketChannel.open(regAddr);
+        this.registry.configureBlocking(false);
+        this.registry.register(this.selector, SelectionKey.OP_READ);
+    }
+
+    public void setupRegistry(int port) throws IOException {
+        this.selector = Selector.open();
+        this.serverSocketChannel = ServerSocketChannel.open();
+        this.serverSocketChannel.configureBlocking(false);
+        this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        this.serverSocketChannel.socket().bind(new InetSocketAddress("0.0.0.0", port));
+        Logger.log("bound to "+serverSocketChannel.socket().getLocalPort());
+
+    }
+
     @Override
     public void run() {
-        ServerSocket server = aquireServerSocket();
+        try {
 
-        if(server == null){
-            System.err.println("TCPServerThread: server was null exiting.");
-            return;
+            while(true){
+
+                this.selector.select();
+                Iterator<SelectionKey> keys = this.selector.selectedKeys().iterator();
+                while(keys.hasNext()){
+                    SelectionKey key = keys.next();
+                    keys.remove();
+
+                    if(!key.isValid()){
+                        continue;
+                    }
+
+                    if(key.isAcceptable()){
+                        this.register(key);
+                    }
+
+                    if(key.isReadable()){
+                        this.readAndRespond(key);
+                    }
+                }
+
+            }
+
+        } catch(Exception e){
+            e.printStackTrace();
         }
+    }
 
-        if(!server.isBound()){
-            System.err.println("TCPServerThread: server was null exiting.");
-            return;
+    private void register(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = ((ServerSocketChannel)key.channel()).accept();
+        socketChannel.configureBlocking(false);
+        socketChannel.register(this.selector, SelectionKey.OP_READ);
+    }
+
+    private void readAndRespond(SelectionKey key) throws IOException {
+
+        ByteBuffer buf = ByteBuffer.allocate(256);
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+
+        int bytesRead = socketChannel.read(buf);
+        if(bytesRead == -1){
+            socketChannel.close();
+            System.out.println("connection closed");
+        } else {
+            buf.flip();
+            Event event = EventFactory.createEvent(bytesRead, buf);
+            this.node.onEvent(event, socketChannel);
         }
+    }
 
-        while(true){
+    private void bindServerSocket(ServerSocket s, int port) throws IOException{
+        while(!s.isBound() && port < 0xFFFF){
             try {
-                Socket socket = server.accept();
-                TCPReceiverThread receiver = new TCPReceiverThread(socket);
-                Thread thread = new Thread(receiver);
-                thread.start();
-
-            } catch(IOException ioe){
-                System.err.println("TCPServerThread: error when accepting socket.");
-                System.err.print(ioe.getMessage());
+                s.bind(new InetSocketAddress("0.0.0.0", port));
+            } catch(Exception e){
+                Logger.log("exception trying to bind to port "+ port);
+                port++;
             }
         }
-
+        Logger.log("bound to "+s.getLocalPort());
 
     }
 
-    public ServerSocket aquireServerSocket(){
-        int port = 9999;
-        while(port < 65356){
-            try {
-                ServerSocket server = new ServerSocket(port);
-                if(server != null)
-                    return server;
-
-            } catch(IOException ioe){
-                System.err.println("TCPServerThread: error when creating ServerSocket on port "+port+".");
-                System.err.print(ioe.getMessage());
-            }
-
-        }
-        return null;
+    public static TCPServerThread getTheInstance(){
+        return TCPServerThread.theInstance;
     }
+
+    public static void setTheInstance(TCPServerThread instance){
+        TCPServerThread.theInstance = instance;
+    }
+
+
 }

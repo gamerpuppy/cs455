@@ -1,13 +1,15 @@
 package cs455.overlay.wireformats;
 
+import java.nio.ByteBuffer;
+
 public class TrafficSummaryRequest implements Event {
-    @Override
-    public int getType() {
-        return 8;
+
+    public TrafficSummaryRequest(ByteBuffer buf){
+
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 8;
     }
 }

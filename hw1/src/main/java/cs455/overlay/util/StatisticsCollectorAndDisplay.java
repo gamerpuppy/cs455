@@ -2,7 +2,6 @@ package cs455.overlay.util;
 
 public class StatisticsCollectorAndDisplay {
 
-
     private static int receiveTracker = 0;
     private static int sendTracker = 0;
     private static int messagesRelayed = 0;

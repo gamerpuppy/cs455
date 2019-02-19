@@ -1,13 +1,15 @@
 package cs455.overlay.wireformats;
 
+import java.nio.ByteBuffer;
+
 public class LinkWeights implements Event {
-    @Override
-    public int getType() {
-        return 5;
+
+    public LinkWeights(ByteBuffer buf){
+
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 5;
     }
 }

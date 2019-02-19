@@ -1,13 +1,15 @@
 package cs455.overlay.wireformats;
 
+import java.nio.ByteBuffer;
+
 public class TaskInitiate implements Event {
-    @Override
-    public int getType() {
-        return 6;
+
+    public TaskInitiate(ByteBuffer buf){
+
     }
 
     @Override
-    public byte[] getBytes() {
-        return new byte[0];
+    public int getCode() {
+        return 6;
     }
 }
