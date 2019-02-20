@@ -2,8 +2,6 @@ package cs455.overlay.transport;
 
 import cs455.overlay.node.Node;
 import cs455.overlay.util.Logger;
-import cs455.overlay.wireformats.Event;
-import cs455.overlay.wireformats.EventFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -23,6 +21,7 @@ public class TCPServerThread implements Runnable {
     private Node node;
     public Selector selector;
     private ServerSocketChannel serverSocketChannel;
+    private EventQueue eventQueue;
 
     public SocketChannel registry = null;
 //    private Map<SocketChannel, >
@@ -65,6 +64,10 @@ public class TCPServerThread implements Runnable {
     public void run() {
         try {
 
+            this.eventQueue = new EventQueue(node);
+            Thread eventQueueThread = new Thread(eventQueue);
+            eventQueueThread.start();
+
             while(true){
 
                 this.selector.select();
@@ -82,7 +85,7 @@ public class TCPServerThread implements Runnable {
                     }
 
                     if(key.isReadable()){
-                        this.readAndRespond(key);
+                        this.read(key);
                     }
                 }
 
@@ -99,7 +102,7 @@ public class TCPServerThread implements Runnable {
         socketChannel.register(this.selector, SelectionKey.OP_READ);
     }
 
-    private void readAndRespond(SelectionKey key) throws IOException {
+    private void read(SelectionKey key) throws IOException {
 
         ByteBuffer buf = ByteBuffer.allocate(32768);
         SocketChannel socketChannel = (SocketChannel) key.channel();
@@ -110,8 +113,9 @@ public class TCPServerThread implements Runnable {
             System.out.println("connection closed");
         } else {
             buf.flip();
-            Event event = EventFactory.createEvent(bytesRead, buf);
-            this.node.onEvent(event, socketChannel);
+            try {
+                eventQueue.queue.put(new EventQueue.Input(bytesRead, buf, socketChannel));
+            } catch(InterruptedException e){}
         }
     }
 

@@ -264,7 +264,6 @@ public class MessagingNode extends Node {
             }
 
 
-
         } catch(IOException e){
             e.printStackTrace();
         }
@@ -302,7 +301,9 @@ public class MessagingNode extends Node {
         }
     }
 
-    private synchronized void printShortestPath(){
+    private void printShortestPath(){
+        Logger.log("printing shortest path");
+
         if(routingCache == null)
             return;
 
