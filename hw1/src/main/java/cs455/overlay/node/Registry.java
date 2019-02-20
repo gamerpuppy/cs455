@@ -424,6 +424,7 @@ public class Registry extends Node {
 
                 } else if(instruction.equals("clear-overlay")){
                     reg.clearOverlay();
+
                 }
             }
 
