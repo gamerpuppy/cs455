@@ -8,6 +8,7 @@ import cs455.overlay.wireformats.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
@@ -92,7 +93,7 @@ public class Registry extends Node {
         ByteBuffer buf = ByteBuffer.allocate(256);
         buf.putInt(EventFactory.REGISTER_RESPONSE);
         buf.put((byte)(doesMatch ? 1 : 0));
-        BufUtils.putString(buf, "Registration request successful, The number of messaging" +
+        BufUtils.putString(buf, "Registration request "+(doesMatch ? "":"un")+"successful, The number of messaging" +
                 "nodes is currently ("+channels.size()+")");
         buf.flip();
 
@@ -156,11 +157,8 @@ public class Registry extends Node {
 
     private boolean ipMatches(SocketChannel socketChannel, String ip){
         String socketAddr = socketChannel.socket().getInetAddress().getCanonicalHostName();
-        Logger.log(socketAddr);
-        try {
-            Logger.log(socketChannel.getRemoteAddress().toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(socketAddr.equals("localhost")){
+            return ipAddress.equals(ip);
         }
 
         return socketAddr.equals(ip);

@@ -240,9 +240,18 @@ public class MessagingNode extends Node {
             buf.get(data, 0, buf.limit());
 
             for (NodeInfo connection : list.connections) {
-                Logger.log("connecting to: " + connection.ipAddr + ":" + connection.port);
 
-                SocketChannel socketChannel = SocketChannel.open(new InetSocketAddress(connection.ipAddr, connection.port));
+                SocketChannel socketChannel;
+                if(ipAddress.equals(connection.ipAddr)){
+                    Logger.log("connecting to: localhost:" + connection.port);
+                    socketChannel = SocketChannel.open(new InetSocketAddress("localhost", connection.port));
+
+                } else {
+                    Logger.log("connecting to: "+connection.ipAddr + ":" + connection.port);
+                    socketChannel = SocketChannel.open(new InetSocketAddress(connection.ipAddr, connection.port));
+
+                }
+
                 socketChannel.configureBlocking(false);
                 socketChannel.register(TCPServerThread.getTheInstance().selector, SelectionKey.OP_READ);
 

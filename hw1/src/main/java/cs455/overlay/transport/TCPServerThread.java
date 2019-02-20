@@ -6,6 +6,7 @@ import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.ByteBuffer;
@@ -41,7 +42,7 @@ public class TCPServerThread implements Runnable {
         this.registry.configureBlocking(false);
         this.registry.register(this.selector, SelectionKey.OP_READ);
 
-        this.node.ipAddress = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.node.ipAddress = InetAddress.getLocalHost().getCanonicalHostName();
         this.node.port = serverSocketChannel.socket().getLocalPort();
 
         Logger.log("bound to " + node.ipAddress+":"+node.port);
@@ -54,7 +55,7 @@ public class TCPServerThread implements Runnable {
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         this.serverSocketChannel.socket().bind(new InetSocketAddress(port));
 
-        this.node.ipAddress = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.node.ipAddress = InetAddress.getLocalHost().getCanonicalHostName();
         this.node.port = serverSocketChannel.socket().getLocalPort();
 
         Logger.log("bound to " + node.ipAddress+":"+node.port);
