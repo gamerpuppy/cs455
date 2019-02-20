@@ -25,6 +25,7 @@ public class LinkWeights implements Event {
             link.ip2 = BufUtils.getString(buf);
             link.port2 = buf.getInt();
             link.weight = buf.getInt();
+            links.add(link);
         }
     }
 

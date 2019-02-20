@@ -4,8 +4,10 @@ import java.nio.ByteBuffer;
 
 public class TaskInitiate implements Event {
 
-    public TaskInitiate(ByteBuffer buf){
+    public final int rounds;
 
+    public TaskInitiate(ByteBuffer buf){
+        this.rounds = buf.getInt();
     }
 
     @Override

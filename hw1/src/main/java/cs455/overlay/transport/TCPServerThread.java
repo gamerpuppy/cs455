@@ -100,7 +100,7 @@ public class TCPServerThread implements Runnable {
 
     private void readAndRespond(SelectionKey key) throws IOException {
 
-        ByteBuffer buf = ByteBuffer.allocate(256);
+        ByteBuffer buf = ByteBuffer.allocate(32768);
         SocketChannel socketChannel = (SocketChannel) key.channel();
 
         int bytesRead = socketChannel.read(buf);

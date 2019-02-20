@@ -3,10 +3,7 @@ package cs455.overlay.node;
 import cs455.overlay.transport.TCPServerThread;
 import cs455.overlay.util.BufUtils;
 import cs455.overlay.util.Logger;
-import cs455.overlay.wireformats.Event;
-import cs455.overlay.wireformats.EventFactory;
-import cs455.overlay.wireformats.RegisterRequest;
-import cs455.overlay.wireformats.DeregisterRequest;
+import cs455.overlay.wireformats.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,19 +16,62 @@ public class Registry extends Node {
 
     List<SocketChannel> channels;
     Map<SocketChannel, NodeInfo> nodeInfoMap;
+    Map<SocketChannel, Boolean> taskCompleteMap;
+    Map<SocketChannel, TrafficSummaryResponse> trafficSummaryMap;
 
     private Registry(){
         this.channels = new ArrayList<>();
         this.nodeInfoMap = new HashMap<>();
+        taskCompleteMap = new HashMap<>();
+        trafficSummaryMap = new HashMap<>();
     }
 
     @Override
     public synchronized void onEvent(Event event, SocketChannel socketChannel) {
         switch (event.getCode()) {
-            case 0: this.onRegisterRequest((RegisterRequest) event, socketChannel); break;
-            case 2: this.onDeregisterRequest((DeregisterRequest) event, socketChannel); break;
+            case EventFactory.REGISTER_REQUEST:
+                this.onRegisterRequest((RegisterRequest) event, socketChannel);
+                break;
+            case EventFactory.DEREGISTER_REQUEST:
+                this.onDeregisterRequest((DeregisterRequest) event, socketChannel);
+                break;
+            case EventFactory.TASK_COMPLETE:
+                this.onTaskComplete((TaskComplete) event, socketChannel);
+                break;
+            case EventFactory.TRAFFIC_SUMMARY_RESPONSE:
+                this.onTrafficSummaryResponse((TrafficSummaryResponse) event, socketChannel);
+                break;
             default:
                 System.out.println("Event received: type not recognized");
+        }
+    }
+
+    private boolean areTrafficSummariesComplete(){
+        for(SocketChannel channel : channels){
+            if(!trafficSummaryMap.containsKey(channel))
+                return false;
+        }
+        return true;
+    }
+
+    private void printTrafficSummaries(){
+        Logger.log("printing traffic summaries");
+
+        System.out.println("Node\t\t\tSentCount\t\t\tReceivedCount\t\t\tSentSum\t\t\tReceiveSum\t\t\tRelayCount");
+        for(SocketChannel socketChannel : channels){
+            TrafficSummaryResponse resp = trafficSummaryMap.get(socketChannel);
+            System.out.println(resp.toString());
+        }
+
+        trafficSummaryMap.clear();
+    }
+
+    private void onTrafficSummaryResponse(TrafficSummaryResponse resp, SocketChannel channel){
+        Logger.log("received traffic summary from  "+resp.ip+":"+resp.port);
+        trafficSummaryMap.put(channel, resp);
+
+        if(areTrafficSummariesComplete()){
+            printTrafficSummaries();
         }
     }
 
@@ -64,6 +104,55 @@ public class Registry extends Node {
             this.nodeInfoMap.remove(socketChannel);
         }
     }
+
+    private boolean areTasksComplete(){
+        for(SocketChannel channel : channels){
+            if(!taskCompleteMap.containsKey(channel)
+            || !taskCompleteMap.get(channel))
+                return false;
+        }
+        return true;
+    }
+
+    private void sendTrafficRequests(){
+
+
+        ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.putInt(EventFactory.TRAFFIC_SUMMARY_REQUEST);
+        buf.flip();
+
+        byte[] data = new byte[4];
+        buf.get(data, 0, 4);
+
+        for(SocketChannel channel : channels){
+            try {
+                ByteBuffer buf2 = ByteBuffer.wrap(data).asReadOnlyBuffer();
+                channel.write(buf2);
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void onTaskComplete(TaskComplete task, SocketChannel channel){
+        Logger.log("received task complete from "+task.ip+":"+task.port);
+
+        taskCompleteMap.put(channel, true);
+
+        if(areTasksComplete()){
+            int sleepTime = 1000;
+            Logger.log("all tasks complete, sleeping for "+sleepTime);
+            taskCompleteMap.clear();
+            try {
+                Thread.sleep(sleepTime);
+            } catch(InterruptedException e){
+                e.printStackTrace();
+            }
+            sendTrafficRequests();
+        }
+    }
+
+
 
     private boolean ipMatches(SocketChannel socketChannel, String ip){
         String socketAddr = socketChannel.socket().getInetAddress().getCanonicalHostName();
@@ -123,7 +212,7 @@ public class Registry extends Node {
     }
 
     private synchronized void sendLinkWeights() throws IOException {
-        ByteBuffer buf = ByteBuffer.allocate(1000000);
+        ByteBuffer buf = ByteBuffer.allocate(32768);
 
         buf.putInt(EventFactory.LINK_WEIGHTS);
 
@@ -136,6 +225,7 @@ public class Registry extends Node {
         int connectionCount = this.channels.size() * degree / 2;
         buf.putInt(connectionCount);
 
+        int writtenCount = 0;
         for(SocketChannel channel : this.channels){
             NodeInfo node = this.nodeInfoMap.get(channel);
             for(NodeInfo dest : node.links.keySet()){
@@ -145,9 +235,12 @@ public class Registry extends Node {
                     BufUtils.putString(buf, dest.ipAddr);
                     buf.putInt(dest.port);
                     buf.putInt(node.links.get(dest));
+                    writtenCount++;
                 }
             }
         }
+        Logger.log("sending "+connectionCount+" connectionCount, wrote "+writtenCount);
+
         buf.flip();
 
         byte[] data = new byte[buf.limit()];
@@ -170,7 +263,7 @@ public class Registry extends Node {
                 }
             }
 
-            ByteBuffer buf = ByteBuffer.allocate(100000);
+            ByteBuffer buf = ByteBuffer.allocate(32768);
             buf.putInt(EventFactory.MESSAGING_NODES_LIST);
             buf.putInt(connections.size());
             for(NodeInfo connection: connections){
@@ -266,9 +359,9 @@ public class Registry extends Node {
         }
 
         if(iterations < 500)
-            Logger.log("found a good overlay in " + iterations + "iterations");
+            Logger.log("found a good overlay in " + iterations + " iterations");
         else
-            Logger.log("could not find a good overlay in " + iterations + "iterations");
+            Logger.log("could not find a good overlay in " + iterations + " iterations");
 
     }
 
@@ -276,6 +369,19 @@ public class Registry extends Node {
         for(SocketChannel channel : this.channels){
             NodeInfo node = this.nodeInfoMap.get(channel);
             node.links = new HashMap<>();
+        }
+    }
+
+    private synchronized void startRounds(int rounds) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(8);
+        buf.putInt(EventFactory.TASK_INITIATE);
+        buf.putInt(rounds);
+
+        byte[] data = buf.array();
+
+        for(SocketChannel channel : this.channels){
+            ByteBuffer buf2 = ByteBuffer.wrap(data).asReadOnlyBuffer();
+            channel.write(buf2);
         }
     }
 
@@ -314,8 +420,9 @@ public class Registry extends Node {
                     reg.sendMessagingNodeList();
                     reg.sendLinkWeights();
 
-                } else if(instruction.equals("send-overlay-link-weights")){
-
+                } else if(instruction.matches("start \\d+")){
+                    int rounds = Integer.parseInt(instruction.substring(6));
+                    reg.startRounds(rounds);
 
                 } else if(instruction.equals("clear-overlay")){
                     reg.clearOverlay();

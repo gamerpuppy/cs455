@@ -1,5 +1,6 @@
 package cs455.overlay.dijkstra;
 
+import cs455.overlay.node.Node;
 import cs455.overlay.node.NodeInfo;
 import cs455.overlay.util.Logger;
 
@@ -8,19 +9,23 @@ import java.util.*;
 public class RoutingCache {
 
     Map<String, List<NodeInfo>> routes;
+    static boolean printPort = true;
 
     public RoutingCache(Map<String, NodeInfo> nodeInfoMap, String sourceId){
         PriorityQueue<NodeWrapper> queue = new PriorityQueue<>();
-
         Map<NodeInfo, NodeInfo> prev = new HashMap<>();
+        Map<NodeInfo, NodeWrapper> wrapperMap = new HashMap<>();
 
         for(String key : nodeInfoMap.keySet()){
             NodeInfo node = nodeInfoMap.get(key);
-            if(node.getId() == sourceId){
-                queue.add(new NodeWrapper(node, 0));
+            NodeWrapper wrap;
+            if(node.getId().equals(sourceId)){
+                wrap = new NodeWrapper(node, 0);
             } else {
-                queue.add(new NodeWrapper(node, Integer.MAX_VALUE));
+                wrap = new NodeWrapper(node, Integer.MAX_VALUE);
             }
+            wrapperMap.put(node, wrap);
+            queue.add(wrap);
         }
 
         while(!queue.isEmpty()){
@@ -28,11 +33,12 @@ public class RoutingCache {
 
             for(NodeInfo node : wrapper.node.links.keySet()){
                 int altDist = wrapper.dist + wrapper.node.links.get(node);
-
-                if(altDist < wrapper.dist){
-                    wrapper.dist = altDist;
+                NodeWrapper wrap2 = wrapperMap.get(node);
+                if(altDist < wrap2.dist){
+                    queue.remove(wrap2);
+                    wrap2.dist = altDist;
                     prev.put(node, wrapper.node);
-                    queue.add(wrapper);
+                    queue.add(wrap2);
                 }
             }
         }
@@ -68,6 +74,10 @@ public class RoutingCache {
         StringBuilder sb = new StringBuilder();
         NodeInfo last = route.get(0);
         sb.append(last.ipAddr);
+        if(printPort){
+            sb.append(":"+last.port);
+        }
+
 
         for(int i = 1; i < route.size(); i++)
         {
@@ -75,6 +85,9 @@ public class RoutingCache {
             int weight = last.links.get(next);
 
             sb.append("--"+weight+"--"+next.ipAddr);
+            if(printPort){
+                sb.append(":"+next.port);
+            }
             last = next;
         }
 
@@ -92,7 +105,12 @@ public class RoutingCache {
 
         @Override
         public int compareTo(NodeWrapper o) {
-            return Integer.compare(this.dist, o.dist);
+            int res =  Integer.compare(this.dist, o.dist);
+
+            if(res != 0)
+                return res;
+
+            return Integer.compare(this.hashCode(),o.hashCode());
         }
     }
 

@@ -15,6 +15,7 @@ public class EventFactory {
     public static final int TRAFFIC_SUMMARY_REQUEST = 8;
     public static final int TRAFFIC_SUMMARY_RESPONSE = 9;
     public static final int MESSAGE = 10;
+    public static final int CONNECT = 11;
 
     public static Event createEvent(int datalen, ByteBuffer buf){
 
@@ -32,6 +33,7 @@ public class EventFactory {
             case 8: return new TrafficSummaryRequest(buf);
             case 9: return new TrafficSummaryResponse(buf);
             case 10: return new Message(buf);
+            case 11: return new Connect(buf);
             default: return new InvalidEvent();
         }
 

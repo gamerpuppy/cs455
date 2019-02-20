@@ -2,11 +2,12 @@ package cs455.overlay.util;
 
 public class StatisticsCollectorAndDisplay {
 
-    private static int receiveTracker = 0;
-    private static int sendTracker = 0;
-    private static int messagesRelayed = 0;
-    private static int sentSum = 0;
-    private static int receivedSum = 0;
+
+    private Integer receiveTracker = 0;
+    private Integer sendTracker = 0;
+    private Integer relayTracker = 0;
+    private Long sentSum = 0L;
+    private Long receivedSum = 0L;
 
     public synchronized void incReceiveTracker(){
         receiveTracker++;
@@ -17,7 +18,7 @@ public class StatisticsCollectorAndDisplay {
     }
 
     public synchronized void incMessagesRelayed(){
-        messagesRelayed++;
+        relayTracker++;
     }
 
     public synchronized void incSentSum(int value){
@@ -28,23 +29,31 @@ public class StatisticsCollectorAndDisplay {
         receivedSum += value;
     }
 
-    public static int getReceiveTracker() {
+    public synchronized void reset(){
+        receiveTracker = 0;
+        sendTracker = 0;
+        relayTracker = 0;
+        sentSum = 0L;
+        receivedSum = 0L;
+    }
+
+    public int getReceiveTracker() {
         return receiveTracker;
     }
 
-    public static int getSendTracker() {
+    public int getSendTracker() {
         return sendTracker;
     }
 
-    public static int getMessagesRelayed() {
-        return messagesRelayed;
+    public int getRelayTracker() {
+        return relayTracker;
     }
 
-    public static int getSentSum() {
+    public long getSentSum() {
         return sentSum;
     }
 
-    public static int getReceivedSum() {
+    public long getReceivedSum() {
         return receivedSum;
     }
 
