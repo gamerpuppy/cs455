@@ -58,7 +58,7 @@ public class Registry extends Node {
     private void printTrafficSummaries(){
         Logger.log("printing traffic summaries");
 
-        System.out.println("Node\t\t\tSentCount\t\t\tReceivedCount\t\t\tSentSum\t\t\tReceiveSum\t\t\tRelayCount");
+        System.out.println("Node\t\t\t\t\tSentCount\t\t\tReceivedCount\t\t\tSentSum\t\t\tReceiveSum\t\t\tRelayCount");
         for(SocketChannel socketChannel : channels){
             TrafficSummaryResponse resp = trafficSummaryMap.get(socketChannel);
             System.out.println(resp.toString());

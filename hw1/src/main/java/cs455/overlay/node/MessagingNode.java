@@ -91,7 +91,7 @@ public class MessagingNode extends Node {
 
     private void onDeregisterResponse(DeregisterResponse resp){
         Logger.log("received deregister response with status:"+resp.status+" info:"+resp.info);
-
+        System.exit(0);
     }
 
     private void onConnect(Connect connect, SocketChannel channel){
