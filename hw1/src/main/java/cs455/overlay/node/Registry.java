@@ -7,7 +7,6 @@ import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 import cs455.overlay.wireformats.RegisterRequest;
 import cs455.overlay.wireformats.DeregisterRequest;
-import javafx.collections.transformation.SortedList;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.*;
 
-public class Registry implements Node {
+public class Registry extends Node {
 
     List<SocketChannel> channels;
     Map<SocketChannel, NodeInfo> nodeInfoMap;
@@ -39,45 +38,49 @@ public class Registry implements Node {
     private void onRegisterRequest(RegisterRequest req, SocketChannel socketChannel) {
         Logger.log("received register request from: ip:"+req.ipAddress+" port:"+req.port);
 
-        int nodeId = channels.size();
-
-        String socketAddr = socketChannel.socket().getInetAddress().getHostName();
-        int socketPort = socketChannel.socket().getPort();
-
-        boolean doesMatch = socketAddr.equals(req.ipAddress)
-                && socketPort == req.port;
+        boolean doesMatch = ipMatches(socketChannel, req.ipAddress);
 
         if(doesMatch){
             this.channels.add(socketChannel);
-            this.nodeInfoMap.put(socketChannel, new NodeInfo(nodeId, socketAddr, socketPort));
+            NodeInfo node = new NodeInfo(req.ipAddress, req.port);
+            node.channel = socketChannel;
+            this.nodeInfoMap.put(socketChannel, node);
         }
 
-        Logger.log("sending register response with status:"+doesMatch+" id:"+nodeId);
+        Logger.log("sending register response with status:"+doesMatch);
 
         ByteBuffer buf = ByteBuffer.allocate(256);
         buf.putInt(EventFactory.REGISTER_RESPONSE);
         buf.put((byte)(doesMatch ? 1 : 0));
-        BufUtils.putString(buf, Integer.toString(nodeId));
+        BufUtils.putString(buf, "Registration request successful, The number of messaging" +
+                "nodes is currently ("+channels.size()+")");
         buf.flip();
 
         try {
             socketChannel.write(buf);
         } catch(IOException e){
-            Logger.log("failure to write register response, removing node id:"+nodeId);
+            Logger.log("failure to write register response, removing node");
             this.channels.remove(socketChannel);
             this.nodeInfoMap.remove(socketChannel);
         }
     }
 
+    private boolean ipMatches(SocketChannel socketChannel, String ip){
+        String socketAddr = socketChannel.socket().getInetAddress().getCanonicalHostName();
+        Logger.log(socketAddr);
+        try {
+            Logger.log(socketChannel.getRemoteAddress().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return socketAddr.equals(ip);
+    }
+
     private void onDeregisterRequest(DeregisterRequest req, SocketChannel socketChannel) {
         Logger.log("received deregister request from: ip:"+req.ipAddress+" port:"+req.port);
 
-        String socketAddr = socketChannel.socket().getInetAddress().getHostName();
-        int socketPort = socketChannel.socket().getPort();
-
-        boolean doesMatch = socketAddr.equals(req.ipAddress)
-                && socketPort == req.port;
-
+        boolean doesMatch = ipMatches(socketChannel, req.ipAddress);
         boolean isRegistered = this.nodeInfoMap.containsKey(socketChannel);
 
         Logger.log("deregister request ip "+ (doesMatch ? "does match" : "doesn't match"));
@@ -113,9 +116,70 @@ public class Registry implements Node {
         for(SocketChannel channel : this.channels){
             NodeInfo node = this.nodeInfoMap.get(channel);
             for(NodeInfo dest : node.links.keySet()){
-                if(node.nodeId < dest.nodeId)
+                if(node.getId().compareTo(dest.getId()) < 1)
                     System.out.println(node.toString() + " " + dest.toString() + " " + node.links.get(dest));
             }
+        }
+    }
+
+    private synchronized void sendLinkWeights() throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(1000000);
+
+        buf.putInt(EventFactory.LINK_WEIGHTS);
+
+        int degree = 0;
+        if(channels.size() > 0){
+            NodeInfo node = this.nodeInfoMap.get(this.channels.get(0));
+            degree = node.links.size();
+        }
+
+        int connectionCount = this.channels.size() * degree / 2;
+        buf.putInt(connectionCount);
+
+        for(SocketChannel channel : this.channels){
+            NodeInfo node = this.nodeInfoMap.get(channel);
+            for(NodeInfo dest : node.links.keySet()){
+                if(node.getId().compareTo(dest.getId()) < 1) {
+                    BufUtils.putString(buf, node.ipAddr);
+                    buf.putInt(node.port);
+                    BufUtils.putString(buf, dest.ipAddr);
+                    buf.putInt(dest.port);
+                    buf.putInt(node.links.get(dest));
+                }
+            }
+        }
+        buf.flip();
+
+        byte[] data = new byte[buf.limit()];
+        buf.get(data, 0, buf.limit());
+
+        for(SocketChannel channel : this.channels){
+            ByteBuffer buf2 = ByteBuffer.wrap(data).asReadOnlyBuffer();
+            channel.write(buf2);
+        }
+    }
+
+    private synchronized void sendMessagingNodeList() throws IOException{
+        for(SocketChannel channel : this.channels){
+            NodeInfo node = this.nodeInfoMap.get(channel);
+
+            ArrayList<NodeInfo> connections = new ArrayList<>();
+            for(NodeInfo dest : node.links.keySet()){
+                if(node.getId().compareTo(dest.getId()) < 1) {
+                    connections.add(dest);
+                }
+            }
+
+            ByteBuffer buf = ByteBuffer.allocate(100000);
+            buf.putInt(EventFactory.MESSAGING_NODES_LIST);
+            buf.putInt(connections.size());
+            for(NodeInfo connection: connections){
+                BufUtils.putString(buf, connection.ipAddr);
+                buf.putInt(connection.port);
+            }
+            buf.flip();
+
+            channel.write(buf);
         }
     }
 
@@ -192,9 +256,12 @@ public class Registry implements Node {
 
             if(availableNodes.size() == 0)
                 found = true;
-            else
-                clearOverlay();
-
+            else {
+                if(availableNodes.get(0).links.size() == connections)
+                    found = true;
+                else
+                    clearOverlay();
+            }
             iterations++;
         }
 
@@ -244,41 +311,20 @@ public class Registry implements Node {
                 } else if(instruction.matches("setup-overlay \\d+")){
                     int connections = Integer.parseInt(instruction.substring(14));
                     reg.setupOverlay(connections);
+                    reg.sendMessagingNodeList();
+                    reg.sendLinkWeights();
 
                 } else if(instruction.equals("send-overlay-link-weights")){
 
+
                 } else if(instruction.equals("clear-overlay")){
                     reg.clearOverlay();
-                } else if(instruction.equals("port")){
-                    System.out.println(Node.getMyIp() + ":" + Node.getMyPort());
                 }
-
             }
 
         } catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    class NodeInfo{
-
-        final int nodeId;
-        final String ipAddr;
-        final int port;
-        Map<NodeInfo, Integer> links;
-
-        NodeInfo(int nodeId, String ipAddr, int port){
-            this.nodeId = nodeId;
-            this.ipAddr = ipAddr;
-            this.port = port;
-            links = new HashMap<>();
-        }
-
-        @Override
-        public String toString(){
-            return ipAddr+":"+port;
-        }
-
     }
 
 }

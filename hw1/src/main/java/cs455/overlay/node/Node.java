@@ -5,16 +5,11 @@ import cs455.overlay.wireformats.Event;
 
 import java.nio.channels.SocketChannel;
 
-public interface Node {
+public abstract class Node {
 
-    public void onEvent(Event event, SocketChannel socketChannel);
+    public abstract void  onEvent(Event event, SocketChannel socketChannel);
 
-    static String getMyIp(){
-        return TCPServerThread.getTheInstance().ip;
-    }
-
-    static int getMyPort(){
-        return TCPServerThread.getTheInstance().port;
-    }
+    public String ipAddress;
+    public int port;
 
 }

@@ -20,11 +20,8 @@ public class TCPServerThread implements Runnable {
     private static TCPServerThread theInstance = null;
 
     private Node node;
-    private Selector selector;
+    public Selector selector;
     private ServerSocketChannel serverSocketChannel;
-
-    public String ip = null;
-    public int port = 0;
 
     public SocketChannel registry = null;
 //    private Map<SocketChannel, >
@@ -44,10 +41,10 @@ public class TCPServerThread implements Runnable {
         this.registry.configureBlocking(false);
         this.registry.register(this.selector, SelectionKey.OP_READ);
 
-        this.ip = serverSocketChannel.socket().getInetAddress().getHostName();
-        this.port = serverSocketChannel.socket().getLocalPort();
+        this.node.ipAddress = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.node.port = serverSocketChannel.socket().getLocalPort();
 
-        Logger.log("bound to " + ip+":"+port);
+        Logger.log("bound to " + node.ipAddress+":"+node.port);
     }
 
     public void setupRegistry(int port) throws IOException {
@@ -55,12 +52,12 @@ public class TCPServerThread implements Runnable {
         this.serverSocketChannel = ServerSocketChannel.open();
         this.serverSocketChannel.configureBlocking(false);
         this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
-        this.serverSocketChannel.socket().bind(new InetSocketAddress("0.0.0.0", port));
+        this.serverSocketChannel.socket().bind(new InetSocketAddress(port));
 
-        this.ip = serverSocketChannel.socket().getInetAddress().getHostName();
-        this.port = serverSocketChannel.socket().getLocalPort();
+        this.node.ipAddress = serverSocketChannel.socket().getInetAddress().getHostName();
+        this.node.port = serverSocketChannel.socket().getLocalPort();
 
-        Logger.log("bound to " + ip+":"+port);
+        Logger.log("bound to " + node.ipAddress+":"+node.port);
     }
 
     @Override
@@ -120,7 +117,7 @@ public class TCPServerThread implements Runnable {
     private void bindServerSocket(ServerSocket s, int port) throws IOException{
         while(!s.isBound() && port < 0xFFFF){
             try {
-                s.bind(new InetSocketAddress("0.0.0.0", port));
+                s.bind(new InetSocketAddress("127.0.0.1", port));
             } catch(Exception e){
                 Logger.log("exception trying to bind to port "+ port);
                 port++;
