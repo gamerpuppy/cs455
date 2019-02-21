@@ -9,7 +9,6 @@ public class NodeInfo implements Comparable<NodeInfo> {
     public String ipAddr;
     public int port;
     public Map<NodeInfo, Integer> links;
-    SocketChannel channel = null;
 
     public NodeInfo(String ipAddr, int port){
         this.ipAddr = ipAddr;

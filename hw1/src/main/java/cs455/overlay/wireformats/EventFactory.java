@@ -17,8 +17,8 @@ public class EventFactory {
     public static final int MESSAGE = 10;
     public static final int CONNECT = 11;
 
-    public static Event createEvent(int datalen, ByteBuffer buf){
-
+    public static Event createEvent(byte[] data){
+        ByteBuffer buf = ByteBuffer.wrap(data);
         int type = buf.getInt();
 
         switch(type){
@@ -36,8 +36,6 @@ public class EventFactory {
             case 11: return new Connect(buf);
             default: return new InvalidEvent();
         }
-
     }
-
 
 }
