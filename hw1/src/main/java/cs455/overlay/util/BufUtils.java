@@ -30,4 +30,11 @@ public class BufUtils {
         buf.put((byte)0);
     }
 
+    public static byte[] getBytesFromWritingBuf(ByteBuffer buf){
+        buf.flip();
+        byte[] data = new byte[buf.limit()];
+        buf.get(data, 0, buf.limit());
+        return data;
+    }
+
 }

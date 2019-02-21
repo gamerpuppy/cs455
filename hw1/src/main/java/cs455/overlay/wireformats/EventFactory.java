@@ -16,6 +16,8 @@ public class EventFactory {
     public static final int TRAFFIC_SUMMARY_RESPONSE = 9;
     public static final int MESSAGE = 10;
     public static final int CONNECT = 11;
+    public static final int INVALID_EVENT = 12;
+
 
     public static Event createEvent(byte[] data){
         ByteBuffer buf = ByteBuffer.wrap(data);

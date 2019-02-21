@@ -26,13 +26,13 @@ public class Registry extends Node {
         Node.theInstance = this;
         this.myIpAddress = InetAddress.getLocalHost().getCanonicalHostName();
         TCPServerThread serverThread = new TCPServerThread(portToBind);
-        this.myPort = serverThread.serverSocketChannel.socket().getLocalPort();
+        this.myPort = serverThread.server.getLocalPort();
 
         Thread thread = new Thread(serverThread);
         thread.start();
     }
 
-    public synchronized void onEvent(Event event, SocketContainer socket) {
+    public void onEvent(Event event, SocketContainer socket) {
         switch (event.getCode()) {
             case EventFactory.REGISTER_REQUEST:
                 this.onRegisterRequest((RegisterRequest) event, socket);
@@ -85,10 +85,12 @@ public class Registry extends Node {
 
         boolean ipMatches = socket.matchesIp(req.ipAddress);
         if(ipMatches){
-            this.nodes.add(socket);
+            synchronized (this){
+                this.nodes.add(socket);
 
-            NodeInfo node = new NodeInfo(req.ipAddress, req.port);
-            this.nodeInfoMap.put(socket, node);
+                NodeInfo node = new NodeInfo(req.ipAddress, req.port);
+                this.nodeInfoMap.put(socket, node);
+            }
         }
 
         Logger.log("sending register response with status:"+ipMatches);
@@ -98,9 +100,8 @@ public class Registry extends Node {
         buf.put((byte)(ipMatches ? 1 : 0));
         BufUtils.putString(buf, "Registration request "+(ipMatches ? "":"un")+"successful, The number of messaging" +
                 "nodes is currently ("+ nodes.size()+")");
-        buf.flip();
 
-        socket.sendData(buf);
+        socket.sendData(BufUtils.getBytesFromWritingBuf(buf));
     }
 
 //

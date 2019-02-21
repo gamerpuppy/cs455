@@ -11,6 +11,7 @@ import cs455.overlay.wireformats.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -31,19 +32,19 @@ public class MessagingNode extends Node {
     StatisticsCollectorAndDisplay stats = new StatisticsCollectorAndDisplay();
 
 
-    private MessagingNode(InetSocketAddress registryAddress) throws IOException {
+    private MessagingNode(String host, int port) throws IOException {
         Node.theInstance = this;
         this.myIpAddress = InetAddress.getLocalHost().getCanonicalHostName();
 
         TCPServerThread serverThread = new TCPServerThread();
-        this.myPort = serverThread.serverSocketChannel.socket().getLocalPort();
+        this.myPort = serverThread.server.getLocalPort();
         this.selfKey = myIpAddress+myPort;
 
         Thread thread = new Thread(serverThread);
         thread.start();
 
-        SocketChannel reg = SocketChannel.open(registryAddress);
-        this.registry = new SocketContainer(reg.socket());
+        Socket socket = new Socket(host, port);
+        this.registry = new SocketContainer(socket);
     }
 
     public synchronized void onEvent(Event event, SocketContainer socket) {
@@ -73,7 +74,7 @@ public class MessagingNode extends Node {
 //                this.onTrafficSummaryRequest((TrafficSummaryRequest) event);
 //                break;
 
-            default: System.out.println("Event received: type not recognized"+event.getCode());
+            default: System.out.println("Event received: type not recognized ("+event.getCode()+")");
         }
     }
 //
@@ -325,7 +326,7 @@ public class MessagingNode extends Node {
 //        }
 //    }
 
-    private synchronized void sendRegistrationRequest(){
+    private void sendRegistrationRequest(){
         Logger.log("sending registration request with ip:"+ myIpAddress +" myPort:"+ myPort);
 
         ByteBuffer buf = ByteBuffer.allocate(256);
@@ -333,19 +334,20 @@ public class MessagingNode extends Node {
         BufUtils.putString(buf, myIpAddress);
         buf.putInt(myPort);
 
-        registry.sendData(buf);
+        registry.sendData(BufUtils.getBytesFromWritingBuf(buf));
     }
 
     public static void main(String[] args){
         try {
 
             if (args.length < 2) {
-                System.out.println("Please provide host and myPort number");
+                System.out.println("Please provide host and port number of registry");
                 return;
             }
 
-            InetSocketAddress regAddr = new InetSocketAddress(args[0], Integer.parseInt(args[1]));
-            MessagingNode msgNode = new MessagingNode(regAddr);
+            String ip = args[0];
+            int port = Integer.parseInt(args[1]);
+            MessagingNode msgNode = new MessagingNode(ip, port);
 
             msgNode.sendRegistrationRequest();
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -363,7 +365,11 @@ public class MessagingNode extends Node {
 
             }
 
-        } catch(Exception e){
+        } catch(ConnectException e){
+            System.out.println("Error connecting to registry");
+            System.exit(1);
+
+        } catch(Exception e) {
             e.printStackTrace();
         }
     }

@@ -5,66 +5,47 @@ import cs455.overlay.util.Logger;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class TCPServerThread implements Runnable {
 
-    public static final int defaultPort = 10000;
+    public static final int defaultPort = 10001;
 
-    public Selector selector;
-    public ServerSocketChannel serverSocketChannel;
+    public ServerSocket server;
+    public List<SocketContainer> socketContainers = new ArrayList<>();
+
 
     public TCPServerThread(int portToBind) throws IOException {
-        this.init();
-        this.serverSocketChannel.socket().bind(new InetSocketAddress(portToBind));
-        Logger.log("bound to "+Node.theInstance.myIpAddress+":"+serverSocketChannel.socket().getLocalPort());
+        server = new ServerSocket(portToBind);
+        Logger.log("server bound to "+server.getLocalPort());
     }
 
     public TCPServerThread() throws IOException {
-        this.init();
-        this.bindServerSocket(serverSocketChannel.socket(), defaultPort);
-    }
+        server = new ServerSocket();
+        bindServerSocket(server, defaultPort);
 
-    private void init() throws IOException{
-        this.selector = Selector.open();
-        this.serverSocketChannel = ServerSocketChannel.open();
-        this.serverSocketChannel.configureBlocking(false);
-        this.serverSocketChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+        Logger.log("server bound to "+server.getLocalPort());
     }
 
     @Override
     public void run() {
         try {
             while(true){
-                this.selector.select();
-                Iterator<SelectionKey> keys = this.selector.selectedKeys().iterator();
-                while(keys.hasNext()){
-                    SelectionKey key = keys.next();
-                    keys.remove();
-
-                    if(!key.isValid()){
-                        continue;
-                    }
-
-                    if(key.isAcceptable()){
-                        this.register(key);
-                    }
-                }
+                Socket socket = server.accept();
+                SocketContainer container = new SocketContainer(socket);
+                socketContainers.add(container);
             }
 
         } catch(Exception e){
             e.printStackTrace();
         }
-    }
-
-    private void register(SelectionKey key) throws IOException {
-        SocketChannel socketChannel = ((ServerSocketChannel)key.channel()).accept();
-        socketChannel.configureBlocking(false);
-        socketChannel.register(this.selector, SelectionKey.OP_READ);
     }
 
     private void bindServerSocket(ServerSocket s, int port) throws IOException{

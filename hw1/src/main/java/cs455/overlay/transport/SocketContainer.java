@@ -1,6 +1,7 @@
 package cs455.overlay.transport;
 
 import cs455.overlay.node.Node;
+import cs455.overlay.util.Logger;
 import cs455.overlay.wireformats.Event;
 import cs455.overlay.wireformats.EventFactory;
 
@@ -19,13 +20,14 @@ public class SocketContainer {
     private TCPSenderThread sender;
     private String externalIpAddress;
 
-    public void sendData(ByteBuffer buf){
-        Data data = new Data(buf.array(), buf.limit());
+    public void sendData(byte[] data){
         sender.addToQueue(data);
     }
 
     public SocketContainer(Socket socket) throws IOException{
         this.socket = socket;
+        this.socket.setSendBufferSize(2048);
+
         this.externalIpAddress = socket.getInetAddress().getCanonicalHostName();
 
         receiver = new TCPReceiverThread();
@@ -44,7 +46,6 @@ public class SocketContainer {
 
         public TCPReceiverThread() throws IOException {
             din = new DataInputStream(socket.getInputStream());
-
             processor = new EventProcessor();
             Thread processorThread = new Thread(processor);
             processorThread.start();
@@ -101,26 +102,28 @@ public class SocketContainer {
     class TCPSenderThread implements Runnable{
 
         private DataOutputStream dout;
-        LinkedList<Data> sendQueue = new LinkedList<>();
+        LinkedList<byte[]> sendQueue = new LinkedList<>();
 
         public TCPSenderThread() throws IOException {
             dout = new DataOutputStream(socket.getOutputStream());
         }
 
-        public synchronized void addToQueue(Data data){
+        public synchronized void addToQueue(byte[] data){
             sendQueue.add(data);
             this.notify();
         }
 
-        private synchronized Data getDataFromQueue() throws InterruptedException {
+        private synchronized byte[] getDataFromQueue() throws InterruptedException {
             while (sendQueue.isEmpty())
                 this.wait();
             return sendQueue.pollFirst();
         }
 
-        private void sendData(Data data) throws IOException {
-            dout.writeInt(data.bytesToSend);
-            dout.write(data.byteArray, 0 , data.bytesToSend);
+        private void sendData(byte[] data) throws IOException {
+            Logger.log("Sending data haha");
+            dout.writeInt(data.length);
+            Logger.log("sent length "+data.length);
+            dout.write(data);
             dout.flush();
         }
 
@@ -128,7 +131,7 @@ public class SocketContainer {
         public void run() {
             while(true){
                 try {
-                    Data data = getDataFromQueue();
+                    byte[] data = getDataFromQueue();
                     sendData(data);
 
                 } catch(Exception e){
@@ -137,16 +140,6 @@ public class SocketContainer {
             }
         }
 
-    }
-
-    class Data {
-        byte[] byteArray;
-        int bytesToSend;
-
-        Data(byte[] data, int bytesToSend){
-            this.byteArray = data;
-            this.bytesToSend = bytesToSend;
-        }
     }
 
     public boolean matchesIp(String ip){
