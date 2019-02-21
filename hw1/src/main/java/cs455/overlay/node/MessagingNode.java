@@ -152,6 +152,10 @@ public class MessagingNode extends Node {
         byte[] data = new byte[buf.limit()];
         buf.get(data, 0, buf.limit());
 
+        if(channel == null){
+            Logger.log("channel was null");
+        }
+
         try {
             ByteBuffer buf2 = ByteBuffer.wrap(data).asReadOnlyBuffer();
             channel.write(buf2);
@@ -383,7 +387,14 @@ public class MessagingNode extends Node {
                 stats.incSendTracker();
                 stats.incSentSum(payload);
 
-                sendMessage(route, payload, route.get(1).channel);
+                NodeInfo toSend = route.get(1);
+
+                sendMessage(route, payload,  toSend.channel);
+                try {
+                    Thread.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
             sendTaskComplete();

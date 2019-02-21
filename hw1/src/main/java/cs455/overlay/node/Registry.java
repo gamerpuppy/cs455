@@ -370,7 +370,7 @@ public class Registry extends Node {
         }
     }
 
-    private synchronized void startRounds(int rounds) throws IOException {
+    private void startRounds(int rounds) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(8);
         buf.putInt(EventFactory.TASK_INITIATE);
         buf.putInt(rounds);
