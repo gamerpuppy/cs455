@@ -193,9 +193,9 @@ public class SocketContainer {
     }
 
     public boolean matchesIp(String ip){
-//        if(this.externalIpAddress.equals("localhost")){
-//            return Node.theInstance.myIpAddress.equals(ip);
-//        }
+        if(this.externalIpAddress.equals("localhost")){
+            return Node.theInstance.myIpAddress.equals(ip);
+        }
 
         return this.externalIpAddress.equals(ip);
     }

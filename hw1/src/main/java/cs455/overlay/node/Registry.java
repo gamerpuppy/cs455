@@ -410,7 +410,6 @@ public class Registry extends Node {
                     int connections = Integer.parseInt(instruction.substring(14));
                     reg.setupOverlay(connections);
                     reg.sendMessagingNodeList();
-                    reg.sendLinkWeights();
 
                 } else if(instruction.equals("send-overlay-link-weights")){
                     reg.sendLinkWeights();
