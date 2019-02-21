@@ -26,7 +26,7 @@ public class TrafficSummaryResponse implements Event {
 
     @Override
     public String toString(){
-        return ip+":"+port+"\t\t\t\t"+sentTracker+"\t\t\t\t"+receiveTracker+"\t\t\t\t"+sentSum+"\t\t\t\t"+receiveSum+"\t\t\t\t"+relayedTracker;
+        return ip+":"+port+"\t"+sentTracker+"\t"+receiveTracker+"\t"+sentSum+"\t"+receiveSum+"\t"+relayedTracker;
     }
 
     @Override

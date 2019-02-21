@@ -43,7 +43,7 @@ public class SocketContainer {
         else
             externalIpAddress = address;
 
-        Logger.log("starting socketcontainer on external ip:"+externalIpAddress);
+//        Logger.log("starting socketcontainer on external ip:"+externalIpAddress);
 
         receiver = new TCPReceiverThread();
         sender = new TCPSenderThread();
@@ -77,7 +77,7 @@ public class SocketContainer {
                     processor.addEvent(data);
 
                 } catch (IOException e) {
-                    Logger.log("receiver thread encountered an exception");
+                    Logger.log("shutting down receiver thread");
                     if(Node.theInstance.getClass() == MessagingNode.class)
                         System.exit(1);
 //                    e.printStackTrace();
@@ -112,7 +112,7 @@ public class SocketContainer {
                     Node.theInstance.onEvent(event, SocketContainer.this);
 
                 } catch(Exception e){
-                    Logger.log("event processor thread encountered an exception");
+                    Logger.log("shutting down event processor");
                     if(Node.theInstance.getClass() == MessagingNode.class)
                         System.exit(1);
 //                    e.printStackTrace();

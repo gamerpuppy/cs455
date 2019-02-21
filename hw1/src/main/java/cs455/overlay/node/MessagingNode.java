@@ -303,7 +303,7 @@ public class MessagingNode extends Node {
                 return;
             }
 
-            Logger.logLevel = 1;
+            Logger.logLevel = Logger.LOGLEVEL_OFF;
 
             String ip = args[0];
             int port = Integer.parseInt(args[1]);

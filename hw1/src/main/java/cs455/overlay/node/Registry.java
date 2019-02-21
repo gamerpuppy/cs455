@@ -60,7 +60,7 @@ public class Registry extends Node {
 
     private void printTrafficSummaries(){
         Logger.log("printing traffic summaries");
-        System.out.println("Node\t\t\t\t\tSentCount\t\t\tReceivedCount\t\t\tSentSum\t\t\tReceiveSum\t\t\tRelayCount");
+        System.out.println("Node\tSentCount\tReceivedCount\tSentSum\tReceiveSum\tRelayCount");
 
         int numSent = 0;
         int numReceived = 0;
@@ -80,7 +80,7 @@ public class Registry extends Node {
             }
             trafficSummaryMap.clear();
         }
-        System.out.println("Sum\t\t\t\t\t\t"+numSent+"\t\t\t\t"+numReceived+"\t\t\t\t"+sumSent+"\t\t\t\t"+sumReceived);
+        System.out.println("Sum\t"+numSent+"\t"+numReceived+"\t"+sumSent+"\t"+sumReceived);
 
     }
 
@@ -98,7 +98,7 @@ public class Registry extends Node {
 
     private void onRegisterRequest(RegisterRequest req, SocketContainer socket) {
         Logger.log("received register request from: ip:"+req.ipAddress+" port:"+req.port);
-        Logger.log("comparing with: "+socket.externalIpAddress);
+//        Logger.log("comparing with: "+socket.externalIpAddress);
 
         boolean ipMatches = socket.matchesIp(req.ipAddress);
         if(ipMatches){
@@ -275,7 +275,7 @@ public class Registry extends Node {
 
 
     private synchronized void setupOverlay(int connections){
-        Logger.log("setting up overlay with "+connections+" connections");
+        Logger.log("setting up overlay on "+sockets.size()+" nodes with "+connections+" connections");
 
         Random rand = new Random();
 
@@ -392,6 +392,8 @@ public class Registry extends Node {
                 System.out.println("Please provide port number");
                 return;
             }
+
+            Logger.logLevel = Logger.LOGLEVEL_ON;
 
             int port = Integer.parseInt(args[0]);
             Registry reg = new Registry(port);
