@@ -98,6 +98,7 @@ public class Registry extends Node {
 
     private void onRegisterRequest(RegisterRequest req, SocketContainer socket) {
         Logger.log("received register request from: ip:"+req.ipAddress+" port:"+req.port);
+        Logger.log("comparing with: "+socket.externalIpAddress);
 
         boolean ipMatches = socket.matchesIp(req.ipAddress);
         if(ipMatches){
@@ -178,7 +179,7 @@ public class Registry extends Node {
             taskCompleteMap.put(socket, true);
 
             if (areTasksComplete()) {
-                int sleepTime = 1000;
+                int sleepTime = 3000;
                 Logger.log("all tasks complete, sleeping for " + sleepTime);
                 taskCompleteMap.clear();
                 try {

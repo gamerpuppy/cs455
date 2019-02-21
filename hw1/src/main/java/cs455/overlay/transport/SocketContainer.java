@@ -1,5 +1,6 @@
 package cs455.overlay.transport;
 
+import cs455.overlay.node.MessagingNode;
 import cs455.overlay.node.Node;
 import cs455.overlay.util.Logger;
 import cs455.overlay.wireformats.Event;
@@ -20,7 +21,7 @@ public class SocketContainer {
     private TCPSenderThread sender;
     private EventProcessor processor;
 
-    private final String externalIpAddress;
+    public final String externalIpAddress;
 
     private Thread processorThread;
     private Thread receiverThread;
@@ -32,6 +33,8 @@ public class SocketContainer {
         this.socket = socket;
         socket.setReceiveBufferSize(receiveBufSize);
         socket.setSendBufferSize(32768);
+
+//        externalIpAddress = socket.getInetAddress().getHostAddress();
 
         String address = socket.getInetAddress().getHostName();
         int idx = address.indexOf('.');
@@ -75,7 +78,9 @@ public class SocketContainer {
 
                 } catch (IOException e) {
                     Logger.log("receiver thread encountered an exception");
-                    e.printStackTrace();
+                    if(Node.theInstance.getClass() == MessagingNode.class)
+                        System.exit(1);
+//                    e.printStackTrace();
                     return;
                 }
             }
@@ -108,7 +113,9 @@ public class SocketContainer {
 
                 } catch(Exception e){
                     Logger.log("event processor thread encountered an exception");
-                    e.printStackTrace();
+                    if(Node.theInstance.getClass() == MessagingNode.class)
+                        System.exit(1);
+//                    e.printStackTrace();
                     return;
                 }
             }
@@ -161,8 +168,11 @@ public class SocketContainer {
                     }
 
                 } catch(Exception e){
+
                     Logger.log("sender thread encountered an exception");
-                    e.printStackTrace();
+                    if(Node.theInstance.getClass() == MessagingNode.class)
+                        System.exit(1);
+//                    e.printStackTrace();
                     return;
                 }
             }

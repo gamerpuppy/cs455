@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="98384bbe-8092-4b19-9e72-c65657d74d8a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/SocketContainer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/SocketContainer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPServerThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPServerThread.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/.gradle/" />
@@ -42,7 +44,7 @@
         <counts>
           <entry key="class" value="1" />
           <entry key="gitignore" value="2" />
-          <entry key="java" value="16" />
+          <entry key="java" value="18" />
           <entry key="machine_list" value="1" />
           <entry key="sh" value="1" />
         </counts>
@@ -51,7 +53,7 @@
         <counts>
           <entry key="Bash" value="1" />
           <entry key="CLASS" value="1" />
-          <entry key="JAVA" value="16" />
+          <entry key="JAVA" value="18" />
           <entry key="PLAIN_TEXT" value="3" />
         </counts>
       </usages-collector>
@@ -65,7 +67,7 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gitignore" value="11" />
-          <entry key="java" value="4138" />
+          <entry key="java" value="4450" />
           <entry key="machine_list" value="8" />
           <entry key="sh" value="18" />
         </counts>
@@ -73,35 +75,21 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="18" />
-          <entry key="JAVA" value="4138" />
+          <entry key="JAVA" value="4450" />
           <entry key="PLAIN_TEXT" value="19" />
         </counts>
       </usages-collector>
     </session>
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.44912702">
+    <splitter split-orientation="horizontal" split-proportion="0.42865744">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-815">
-                  <caret line="109" selection-start-line="109" selection-end-line="109" />
-                  <folding>
-                    <element signature="imports" expanded="true" />
-                    <element signature="e#11843#11844#0" expanded="true" />
-                    <element signature="e#11887#11888#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/SocketContainer.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="268">
-                  <caret line="184" column="19" lean-forward="true" selection-start-line="184" selection-start-column="19" selection-end-line="184" selection-end-column="19" />
+                <state relative-caret-position="-1110">
+                  <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
                 </state>
               </provider>
             </entry>
@@ -109,11 +97,20 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPServerThread.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-95">
-                  <caret line="18" column="18" selection-start-line="18" selection-start-column="18" selection-end-line="18" selection-end-column="18" />
+                <state relative-caret-position="595">
+                  <caret line="40" column="52" lean-forward="true" selection-start-line="40" selection-start-column="52" selection-end-line="40" selection-end-column="52" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="jar:///usr/lib/jvm/java-1.8.0-openjdk/src.zip!/java/lang/Thread.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="88">
+                  <caret line="747" selection-start-line="747" selection-end-line="747" />
                 </state>
               </provider>
             </entry>
@@ -127,6 +124,18 @@
               </provider>
             </entry>
           </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="638">
+                  <caret line="109" selection-start-line="109" selection-end-line="109" />
+                  <folding>
+                    <element signature="imports" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
         </leaf>
       </split-first>
       <split-second>
@@ -134,8 +143,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-821">
-                  <caret line="226" selection-start-line="226" selection-end-line="226" />
+                <state relative-caret-position="188">
+                  <caret line="302" column="23" lean-forward="true" selection-start-line="302" selection-start-column="23" selection-end-line="302" selection-end-column="23" />
                   <folding>
                     <element signature="imports" expanded="true" />
                     <element signature="e#11843#11844#0" expanded="true" />
@@ -148,8 +157,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="326">
-                  <caret line="410" column="50" lean-forward="true" selection-start-line="410" selection-start-column="50" selection-end-line="410" selection-end-column="50" />
+                <state relative-caret-position="445">
+                  <caret line="179" lean-forward="true" selection-start-line="179" selection-end-line="179" />
                   <folding>
                     <element signature="imports" expanded="true" />
                   </folding>
@@ -219,6 +228,7 @@
       <find>dere</find>
       <find>sockets</find>
       <find>channel</find>
+      <find>taskcomple</find>
     </findStrings>
     <replaceStrings>
       <replace>socket</replace>
@@ -257,7 +267,7 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="308" />
     <option name="y" value="160" />
     <option name="width" value="1937" />
@@ -321,6 +331,24 @@
               <item name="overlay" type="462c0819:PsiDirectoryNode" />
               <item name="transport" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="hw1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hw1" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="overlay" type="462c0819:PsiDirectoryNode" />
+              <item name="util" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hw1" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hw1" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="overlay" type="462c0819:PsiDirectoryNode" />
+              <item name="wireformats" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -348,7 +376,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.MessagingNode">
+  <component name="RunManager" selected="Application.MessagingNode (1)">
     <configuration name="MessagingNode (1)" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="cs455.overlay.node.MessagingNode" />
       <module name="hw1" />
@@ -401,7 +429,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17311000" />
+    <option name="totallyTimeSpent" value="19463000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-3" y="0" width="1926" height="1154" extended-state="6" />
@@ -418,14 +446,14 @@
       <window_info anchor="bottom" id="ANTLR Preview" order="1" />
       <window_info anchor="bottom" id="Message" order="2" />
       <window_info anchor="bottom" id="Find" order="3" sideWeight="0.49946752" weight="0.3291262" />
-      <window_info active="true" anchor="bottom" id="Run" order="4" sideWeight="0.7034079" side_tool="true" visible="true" weight="0.23203884" />
-      <window_info anchor="bottom" id="Debug" order="5" sideWeight="0.46379128" weight="0.41262135" />
+      <window_info anchor="bottom" id="Run" order="4" sideWeight="0.70447284" side_tool="true" visible="true" weight="0.23203884" />
+      <window_info anchor="bottom" id="Debug" order="5" sideWeight="0.5686901" weight="0.32718447" />
       <window_info anchor="bottom" id="Cvs" order="6" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="7" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" />
       <window_info anchor="bottom" id="Database Changes" order="10" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.29659212" visible="true" weight="0.23203884" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" sideWeight="0.29552716" visible="true" weight="0.23203884" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" />
       <window_info anchor="bottom" id="Build" order="13" weight="0.32978722" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -595,13 +623,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar:///usr/lib/jvm/java-1.8.0-openjdk/src.zip!/java/lang/Thread.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="747" selection-start-line="747" selection-end-line="747" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/dijkstra/RoutingCache.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="235">
@@ -662,20 +683,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar:///usr/lib/jvm/java-1.8.0-openjdk/src.zip!/java/lang/Thread.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="747" selection-start-line="747" selection-end-line="747" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/TCPServerThread.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-95">
-          <caret line="18" column="18" selection-start-line="18" selection-start-column="18" selection-end-line="18" selection-end-column="18" />
+        <state relative-caret-position="595">
+          <caret line="40" column="52" lean-forward="true" selection-start-line="40" selection-start-column="52" selection-end-line="40" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/SocketContainer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1110">
+          <caret line="77" lean-forward="true" selection-start-line="77" selection-end-line="77" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/MessagingNode.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-821">
-          <caret line="226" selection-start-line="226" selection-end-line="226" />
+        <state relative-caret-position="188">
+          <caret line="302" column="23" lean-forward="true" selection-start-line="302" selection-start-column="23" selection-end-line="302" selection-end-column="23" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#11843#11844#0" expanded="true" />
@@ -684,17 +719,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/transport/SocketContainer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="184" column="19" lean-forward="true" selection-start-line="184" selection-start-column="19" selection-end-line="184" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cs455/overlay/node/Registry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="410" column="50" lean-forward="true" selection-start-line="410" selection-start-column="50" selection-end-line="410" selection-end-column="50" />
+        <state relative-caret-position="445">
+          <caret line="179" lean-forward="true" selection-start-line="179" selection-end-line="179" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

@@ -13,14 +13,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.*;
-import java.nio.channels.SocketChannel;
 import java.util.*;
 
 public class MessagingNode extends Node {
 
+    public static final int defaultPort = 11000;
     Map<NodeInfo, SocketContainer> socketContainerMap = new HashMap<>();
     Map<String, NodeInfo> allNodes = new HashMap<>();
 
@@ -34,6 +33,7 @@ public class MessagingNode extends Node {
     private MessagingNode(String host, int port) throws IOException {
         Node.theInstance = this;
         this.myIpAddress = InetAddress.getLocalHost().getHostName();
+//        this.myIpAddress = InetAddress.getLocalHost().getHostAddress();
 
         TCPServerThread serverThread = new TCPServerThread();
         this.myPort = serverThread.server.getLocalPort();
@@ -304,7 +304,6 @@ public class MessagingNode extends Node {
             }
 
             Logger.logLevel = 1;
-            TCPServerThread.defaultPort = 11110;
 
             String ip = args[0];
             int port = Integer.parseInt(args[1]);
