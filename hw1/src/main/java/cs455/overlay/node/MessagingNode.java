@@ -21,7 +21,6 @@ import java.util.*;
 
 public class MessagingNode extends Node {
 
-    List<NodeInfo> nodes = new ArrayList<>();
     Map<NodeInfo, SocketContainer> socketContainerMap = new HashMap<>();
     Map<String, NodeInfo> allNodes = new HashMap<>();
 
@@ -304,7 +303,8 @@ public class MessagingNode extends Node {
                 return;
             }
 
-            Logger.logLevel = 0;
+            Logger.logLevel = 1;
+            TCPServerThread.defaultPort = 11110;
 
             String ip = args[0];
             int port = Integer.parseInt(args[1]);

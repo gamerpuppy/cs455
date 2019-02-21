@@ -16,7 +16,7 @@ import java.util.List;
 
 public class TCPServerThread implements Runnable {
 
-    public static final int defaultPort = 10001;
+    public static int defaultPort = 915;
 
     public ServerSocket server;
     public List<SocketContainer> socketContainers = new ArrayList<>();
