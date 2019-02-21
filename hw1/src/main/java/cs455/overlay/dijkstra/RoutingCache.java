@@ -75,7 +75,7 @@ public class RoutingCache {
         NodeInfo last = route.get(0);
         sb.append(last.ipAddr);
         if(printPort){
-            sb.append(":"+last.port);
+            sb.append(last.port);
         }
 
 
@@ -86,7 +86,7 @@ public class RoutingCache {
 
             sb.append("--"+weight+"--"+next.ipAddr);
             if(printPort){
-                sb.append(":"+next.port);
+                sb.append(next.port);
             }
             last = next;
         }

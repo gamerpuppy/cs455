@@ -18,112 +18,124 @@ public class SocketContainer {
     private Socket socket;
     private TCPReceiverThread receiver;
     private TCPSenderThread sender;
-    private String externalIpAddress;
+    private EventProcessor processor;
 
-    public void sendData(byte[] data){
-        sender.addToQueue(data);
-    }
+    private final String externalIpAddress;
+
+    private Thread processorThread;
+    private Thread receiverThread;
+    private Thread senderThread;
+
+    public static final int receiveBufSize = 32768*16;
 
     public SocketContainer(Socket socket) throws IOException{
         this.socket = socket;
-        this.socket.setSendBufferSize(2048);
+        socket.setReceiveBufferSize(receiveBufSize);
+        socket.setSendBufferSize(32768);
 
-        this.externalIpAddress = socket.getInetAddress().getCanonicalHostName();
+        String address = socket.getInetAddress().getHostName();
+        int idx = address.indexOf('.');
+        if(idx != -1)
+            externalIpAddress = address.substring(0,idx);
+        else
+            externalIpAddress = address;
+
+        Logger.log("starting socketcontainer on external ip:"+externalIpAddress);
 
         receiver = new TCPReceiverThread();
         sender = new TCPSenderThread();
+        processor = new EventProcessor();
 
-        Thread receiverThread = new Thread(receiver);
-        Thread senderThread = new Thread(sender);
+        processorThread = new Thread(processor);
+        processorThread.start();
+
+        receiverThread = new Thread(receiver);
         receiverThread.start();
+
+        senderThread = new Thread(sender);
         senderThread.start();
     }
 
     class TCPReceiverThread implements Runnable {
 
         private DataInputStream din;
-        private EventProcessor processor;
 
         public TCPReceiverThread() throws IOException {
             din = new DataInputStream(socket.getInputStream());
-            processor = new EventProcessor();
-            Thread processorThread = new Thread(processor);
-            processorThread.start();
         }
 
         @Override
         public void run() {
-            while(socket != null){
+            while(socket != null && !socket.isClosed()){
                 try {
                     int dataLength = din.readInt();
                     byte[] data = new byte[dataLength];
                     din.readFully(data, 0, dataLength);
                     processor.addEvent(data);
 
-                } catch (IOException se) {
-                    se.printStackTrace();
+                } catch (IOException e) {
+                    Logger.log("receiver thread encountered an exception");
+                    e.printStackTrace();
+                    return;
                 }
             }
         }
 
-        class EventProcessor implements Runnable {
+    }
 
-            private LinkedList<byte[]> processQueue = new LinkedList<>();
+    class EventProcessor implements Runnable {
 
-            synchronized void addEvent(byte[] data){
-                processQueue.add(data);
-                this.notify();
-            }
+        private LinkedList<byte[]> processQueue = new LinkedList<>();
 
-            synchronized byte[] getDataBlocking() throws InterruptedException {
-                while (processQueue.isEmpty())
-                    this.wait();
-                return processQueue.pollFirst();
-            }
+        synchronized void addEvent(byte[] data){
+            processQueue.add(data);
+            this.notify();
+        }
 
-            @Override
-            public void run() {
-                while(true){
-                    try {
-                        byte[] data = getDataBlocking();
-                        Event event = EventFactory.createEvent(data);
-                        Node.theInstance.onEvent(event, SocketContainer.this);
+        synchronized byte[] getDataBlocking() throws InterruptedException {
+            while (processQueue.isEmpty())
+                this.wait();
+            return processQueue.pollFirst();
+        }
 
-                    } catch(Exception e){
-                        e.printStackTrace();
-                    }
+        @Override
+        public void run() {
+            while(true){
+                try {
+                    byte[] data = getDataBlocking();
+                    Event event = EventFactory.createEvent(data);
+                    Node.theInstance.onEvent(event, SocketContainer.this);
+
+                } catch(Exception e){
+                    Logger.log("event processor thread encountered an exception");
+                    e.printStackTrace();
+                    return;
                 }
             }
-
         }
 
     }
 
     class TCPSenderThread implements Runnable{
 
+        private boolean shutDown = false;
         private DataOutputStream dout;
-        LinkedList<byte[]> sendQueue = new LinkedList<>();
+        LinkedList<Data> sendQueue = new LinkedList<>();
 
         public TCPSenderThread() throws IOException {
             dout = new DataOutputStream(socket.getOutputStream());
         }
 
-        public synchronized void addToQueue(byte[] data){
-            sendQueue.add(data);
-            this.notify();
+        public void addToQueue(Data data){
+            synchronized (this) {
+                sendQueue.add(data);
+                this.notify();
+            }
         }
 
-        private synchronized byte[] getDataFromQueue() throws InterruptedException {
-            while (sendQueue.isEmpty())
-                this.wait();
-            return sendQueue.pollFirst();
-        }
-
-        private void sendData(byte[] data) throws IOException {
-            Logger.log("Sending data haha");
-            dout.writeInt(data.length);
-            Logger.log("sent length "+data.length);
-            dout.write(data);
+        private void sendData(Data data) throws IOException {
+            dout.writeInt(data.bytesToSend);
+            dout.write(data.byteArray, 0 , data.bytesToSend);
             dout.flush();
         }
 
@@ -131,23 +143,68 @@ public class SocketContainer {
         public void run() {
             while(true){
                 try {
-                    byte[] data = getDataFromQueue();
-                    sendData(data);
+                    Data data;
+                    synchronized (this) {
+                        while (true) {
+                            if (shutDown && sendQueue.isEmpty()) {
+                                Logger.log("shutting down sender thread");
+                                return;
+                            } else if (sendQueue.isEmpty()) {
+                                this.wait();
+                            } else {
+                                data = sendQueue.pollFirst();
+                                break;
+                            }
+                        }
+
+                        sendData(data);
+                    }
 
                 } catch(Exception e){
+                    Logger.log("sender thread encountered an exception");
                     e.printStackTrace();
+                    return;
                 }
             }
         }
 
     }
 
-    public boolean matchesIp(String ip){
-        if(this.externalIpAddress.equals("localhost")){
-            return Node.theInstance.myIpAddress.equals(ip);
+    class Data {
+        byte[] byteArray;
+        int bytesToSend;
+
+        Data(byte[] data, int bytesToSend){
+            this.byteArray = data;
+            this.bytesToSend = bytesToSend;
         }
+    }
+
+    // buf should be in writing state
+    public void sendData(ByteBuffer buf){
+        buf.flip();
+        Data data = new Data(buf.array(), buf.limit());
+        sender.addToQueue(data);
+    }
+
+    public void sendData(byte[] data){
+        Data msg = new Data(data, data.length);
+        sender.addToQueue(msg);
+    }
+
+    public boolean matchesIp(String ip){
+//        if(this.externalIpAddress.equals("localhost")){
+//            return Node.theInstance.myIpAddress.equals(ip);
+//        }
 
         return this.externalIpAddress.equals(ip);
+    }
+
+    public void shutDown(){
+        processorThread.interrupt();
+        receiverThread.interrupt();
+        sender.shutDown = true;
+        sender.notify();
     }
 
 }

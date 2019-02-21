@@ -14,7 +14,7 @@ public abstract class Node {
     public abstract void  onEvent(Event event, SocketContainer socket);
 
     public String myIpAddress;
-    int myPort;
+    public int myPort;
 
     public static Node theInstance;
 
