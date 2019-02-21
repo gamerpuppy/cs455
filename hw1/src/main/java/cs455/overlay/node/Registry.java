@@ -393,7 +393,7 @@ public class Registry extends Node {
                 return;
             }
 
-            Logger.logLevel = Logger.LOGLEVEL_ON;
+            Logger.logLevel = Logger.LOG_LEVEL_ON;
 
             int port = Integer.parseInt(args[0]);
             Registry reg = new Registry(port);
