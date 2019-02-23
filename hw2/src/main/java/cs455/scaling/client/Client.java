@@ -10,7 +10,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -33,10 +32,10 @@ public class Client {
 
     public void loop() throws Exception {
         Random r = new Random();
-        while(true){
-            byte[] b = new byte[8000];
-            r.nextBytes(b);
+        byte[] b = new byte[8000];
 
+        while(true){
+            r.nextBytes(b);
             String hash = SHA.SHA1FromBytesPadded(b, 40);
 
             synchronized (this.unconfirmedHashes) {
@@ -53,6 +52,7 @@ public class Client {
     public static void main(String[] args) {
         if(args.length < 3){
             System.out.println("Usage: host port message-rate");
+            System.exit(1);
         }
 
         final String host = args[0];
@@ -111,36 +111,8 @@ public class Client {
             synchronized (Client.this.unconfirmedHashes) {
                 unconfirmedHashes.remove(hash);
             }
-
         }
 
     }
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
