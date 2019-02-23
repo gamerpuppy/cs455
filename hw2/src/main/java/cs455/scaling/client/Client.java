@@ -43,7 +43,8 @@ public class Client {
             }
 
             ByteBuffer outBuf = ByteBuffer.wrap(hash.getBytes(StandardCharsets.US_ASCII));
-            channel.write(outBuf);
+            while(outBuf.hasRemaining())
+                channel.write(outBuf);
 
             Thread.sleep((int)(1000/this.msgRate));
         }

@@ -46,7 +46,7 @@ public class MessagingNode extends Node {
         this.registry = new SocketContainer(socket);
     }
 
-    public synchronized void onEvent(Event event, SocketContainer socket) {
+    public void onEvent(Event event, SocketContainer socket) {
         switch (event.getCode()){
             case EventFactory.REGISTER_RESPONSE:
                 this.onRegisterResponse((RegisterResponse) event);
