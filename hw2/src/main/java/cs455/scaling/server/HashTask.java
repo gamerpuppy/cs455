@@ -21,9 +21,7 @@ public class HashTask implements Task {
             byte[] data = this.readFromChannel();
             String hash = SHA.SHA1FromBytesPadded(data, 40);
             this.writeToChannel(hash);
-
-//            Server.getTheInstance().
-
+            Server.getTheInstance().finishTask(channel);
 
         } catch (IOException e) {
             e.printStackTrace();

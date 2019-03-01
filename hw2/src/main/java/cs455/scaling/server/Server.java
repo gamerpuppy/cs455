@@ -3,10 +3,9 @@ package cs455.scaling.server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class Server {
@@ -16,13 +15,15 @@ public class Server {
     private ServerSocketChannel server;
     private ThreadPoolManager manager;
 
-    private int activeChannels = 0;
+    private Map<SocketChannel, Integer> clientDataMap = new HashMap<>();
+
 
     private Server(int port, int threadPoolSize, int batchSize, long batchTime) throws IOException {
+        this.selector = Selector.open();
+
         this.server = ServerSocketChannel.open();
         this.server.bind(new InetSocketAddress(port));
-
-        this.selector = Selector.open();
+        this.server.configureBlocking(false);
         this.server.register(selector, SelectionKey.OP_ACCEPT);
 
         this.manager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
@@ -45,42 +46,51 @@ public class Server {
                 }
 
                 if (key.isAcceptable()) {
-                    this.register(key);
-                }
+                    this.register();
 
-                else if (key.isReadable()) {
+                } else if (key.isReadable()) {
                     this.makeTask(key);
                 }
 
             }
-
-
         }
 
     }
 
-    public void register(SelectionKey key) throws IOException {
-        SocketChannel channel = (SocketChannel) key.channel();
+    private void register() throws IOException {
+        SocketChannel channel = this.server.accept();
         channel.configureBlocking(false);
-        channel.register(this.selector, SelectionKey.OP_READ);
 
-        this.activeChannels += 1;
+        synchronized (this) {
+            channel.register(this.selector, SelectionKey.OP_READ);
+            this.clientDataMap.put(channel, 0);
+        }
     }
 
-    public void makeTask(SelectionKey key) {
+    private void makeTask(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
         Task task = new HashTask(channel);
         manager.addTask(task);
         key.cancel();
     }
 
-    public static Server getTheInstance() {
-        return Server.theInstance;
+    public void finishTask(SocketChannel channel) {
+
+        synchronized (this) {
+            try {
+                int throughput = this.clientDataMap.get(channel);
+                this.clientDataMap.put(channel, throughput + 1);
+                channel.register(selector, SelectionKey.OP_READ);
+
+            } catch (ClosedChannelException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
-    public Selector getSelector() {
-
-
+    public static Server getTheInstance() {
+        return Server.theInstance;
     }
 
     public static void main(String[] args) {

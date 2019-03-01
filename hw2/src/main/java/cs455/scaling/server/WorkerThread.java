@@ -35,6 +35,7 @@ public class WorkerThread implements Runnable {
                     break;
                 }
             }
+            manager.removeFromQueue(this);
         }
     }
 

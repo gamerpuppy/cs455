@@ -43,6 +43,12 @@ public class ThreadPoolManager {
         }
     }
 
+    public void removeFromQueue(WorkerThread worker) {
+        synchronized (this) {
+            workerQueue.remove(worker);
+        }
+    }
+
     public void addTask(Task task)
     {
         synchronized(this)
@@ -64,11 +70,9 @@ public class ThreadPoolManager {
                         workerQueue.poll();
                         worker.notify();
                     }
-
                 }
             }
         }
-
     }
 
     public Batch makeAvailable(WorkerThread worker)
@@ -76,10 +80,22 @@ public class ThreadPoolManager {
         synchronized (this)
         {
             if(this.workerQueue.isEmpty()) {
-                if(batchList.isEmpty())
+                if(batchList.isEmpty()) {
+                    workerQueue.add(worker);
                     return null;
-                else
-                    return batchList.poll();
+
+                } else {
+                    Batch batch = batchList.poll();
+                    if(batch.tasks.size() == this.batchSize) {
+                        return batch;
+
+                    } else {
+                        workerQueue.add(worker);
+                        return batch;
+
+                    }
+
+                }
 
             } else {
                 workerQueue.add(worker);

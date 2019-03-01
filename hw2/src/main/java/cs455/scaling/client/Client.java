@@ -22,6 +22,8 @@ public class Client {
 
     public Client(String host, int port, double msgRate) throws IOException {
         channel = SocketChannel.open(new InetSocketAddress(host, port));
+        channel.configureBlocking(false);
+
         unconfirmedHashes = new LinkedList<>();
         this.msgRate = msgRate;
         ReceiverThread receiverThread = new ReceiverThread(channel);
