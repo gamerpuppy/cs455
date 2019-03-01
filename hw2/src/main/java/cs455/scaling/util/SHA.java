@@ -14,13 +14,20 @@ public class SHA {
         return hashInt.toString(16);
     }
 
-    public static String SHA1FromBytesPadded(byte[] data, int desiredSize) throws NoSuchAlgorithmException{
-        String hash = SHA.SHA1FromBytes(data);
-        String pad = "";
-        for(int i = hash.length(); i < desiredSize; i++){
-            pad += '0';
+    public static String SHA1FromBytesPadded(byte[] data, int desiredSize){
+        try {
+            String hash = SHA.SHA1FromBytes(data);
+            String pad = "";
+            for (int i = hash.length(); i < desiredSize; i++) {
+                pad += '0';
+            }
+            return pad + hash;
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            System.exit(1);
+            return "";
         }
-        return pad + hash;
     }
 
 }
