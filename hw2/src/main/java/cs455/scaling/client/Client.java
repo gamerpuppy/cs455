@@ -10,47 +10,62 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Client {
 
-    final SocketChannel channel;
-    final List<String> unconfirmedHashes;
-    final double msgRate;
+    private final SocketChannel channel;
+    private final ConcurrentHashMap<String, Object> unconfirmedHashes = new ConcurrentHashMap<>();
+    private final AtomicInteger sentCount = new AtomicInteger(0);
+    private final AtomicInteger receivedCount = new AtomicInteger(0);
+    private final double msgRate;
 
     public Client(String host, int port, double msgRate) throws IOException {
         channel = SocketChannel.open(new InetSocketAddress(host, port));
         channel.configureBlocking(false);
 
-        unconfirmedHashes = new LinkedList<>();
         this.msgRate = msgRate;
-        ReceiverThread receiverThread = new ReceiverThread(channel);
-
-        Thread thread = new Thread(receiverThread);
-        thread.start();
     }
 
     public void loop() throws Exception {
+        Thread thread = new Thread(new ReceiverThread(channel));
+        thread.start();
+
+        Thread thread2 = new Thread(new ClientStatisticsThread());
+        thread2.start();
+
         Random r = new Random();
         byte[] b = new byte[8000];
 
-        while(true){
+        long lastLoopTime = System.currentTimeMillis();
+        final long millisBetweenStarts = (long)(1/this.msgRate * 1000);
+
+        while(true) {
             r.nextBytes(b);
             String hash = SHA.SHA1FromBytesPadded(b, 40);
-            System.out.println("sending hash "+hash);
-
-            synchronized (this.unconfirmedHashes) {
-                unconfirmedHashes.add(hash);
-            }
+//            System.out.println("sending hash " + hash.substring(0, 8));
 
             ByteBuffer outBuf = ByteBuffer.wrap(b);
-            while(outBuf.hasRemaining())
-                channel.write(outBuf);
+            while (outBuf.hasRemaining())
+                this.channel.write(outBuf);
 
-//            System.in.read();
-            Thread.sleep((int)(1000/this.msgRate));
+            this.unconfirmedHashes.put(hash, new Object());
+            this.sentCount.getAndIncrement();
+
+            try {
+                long nextLoopStartTime = lastLoopTime + millisBetweenStarts;
+                long sleepTime = nextLoopStartTime - System.currentTimeMillis();
+                if (sleepTime > 0)
+                    Thread.sleep(sleepTime);
+                lastLoopTime = nextLoopStartTime;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -88,7 +103,10 @@ public class Client {
             try {
                 while (true) {
                     this.selector.select();
-                    for(SelectionKey key : this.selector.selectedKeys()) {
+                    Iterator<SelectionKey> it = this.selector.selectedKeys().iterator();
+                    while(it.hasNext()) {
+                        SelectionKey key = it.next();
+                        it.remove();
 
                         if(key.isReadable()){
                             readKey(key);
@@ -112,11 +130,41 @@ public class Client {
             }
 
             String hash = new String(buf.array(), StandardCharsets.US_ASCII);
-            System.out.println("received hash "+hash);
+//            System.out.println("received hash " + hash.substring(0,8));
+
+            Client.this.unconfirmedHashes.remove(hash);
+            Client.this.receivedCount.getAndIncrement();
+        }
+
+    }
+
+    class ClientStatisticsThread implements Runnable {
+
+        private final double UPDATE_INTERVAL = 20d;
+
+        @Override
+        public void run() {
+
+            long lastLoopTime = System.currentTimeMillis();
+            final long millisBetweenStarts = (long)(UPDATE_INTERVAL * 1000);
+
+            while(true) {
+                try {
+                    long nextLoopStartTime = lastLoopTime + millisBetweenStarts;
+                    long sleepTime = nextLoopStartTime - System.currentTimeMillis();
+                    if(sleepTime > 0)
+                        Thread.sleep(sleepTime);
+                    lastLoopTime = nextLoopStartTime;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                int sentValue = Client.this.sentCount.getAndSet(0);
+                int receivedValue = Client.this.receivedCount.getAndSet(0);
+
+                System.out.printf("[timestamp] Total Sent Count: %d, Total Received Count: %d\n",sentValue , receivedValue);
 
 
-            synchronized (Client.this.unconfirmedHashes) {
-                unconfirmedHashes.remove(hash);
             }
         }
 

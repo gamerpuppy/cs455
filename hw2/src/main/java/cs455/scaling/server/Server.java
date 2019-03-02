@@ -2,8 +2,12 @@ package cs455.scaling.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
 
@@ -13,7 +17,7 @@ public class Server {
     private ThreadPoolManager manager;
     private StatisticsThread statisticsThread;
 
-    private final Map<SocketChannel, ChannelWrapper> wrappers = new HashMap<>();
+    private final ConcurrentHashMap<SocketChannel, AtomicInteger> throughputMap = new ConcurrentHashMap<>();
 
     private Server(int port, int threadPoolSize, int batchSize, long batchTime) throws IOException {
         this.selector = Selector.open();
@@ -25,7 +29,7 @@ public class Server {
 
         this.manager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
 
-        this.statisticsThread = new StatisticsThread(this);
+        this.statisticsThread = new StatisticsThread();
 
         theInstance = this;
     }
@@ -39,7 +43,7 @@ public class Server {
 
         while (true)
         {
-            this.selector.select();
+            this.selector.selectNow();
 
             Set<SelectionKey> set = this.selector.selectedKeys();
             Iterator<SelectionKey> it = set.iterator();
@@ -58,57 +62,55 @@ public class Server {
 
                 } else if (key.isReadable()) {
                     this.makeTask(key);
+
                 }
             }
+
         }
 
     }
 
     private void register() throws IOException {
         SocketChannel channel = this.server.accept();
+        channel.socket().setReceiveBufferSize(4096*4);
         channel.configureBlocking(false);
 
-        System.out.println("Connection received from "+channel.getRemoteAddress());
+//        System.out.println("connection received from "+channel.getRemoteAddress());
 
         channel.register(this.selector, SelectionKey.OP_READ);
-        synchronized (this.wrappers) {
-            this.wrappers.put(channel, new ChannelWrapper(channel));
-        }
+        this.throughputMap.put(channel, new AtomicInteger(0));
     }
 
     private void makeTask(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        ChannelWrapper wrapper;
-        synchronized (this.wrappers) {
-            wrapper = this.wrappers.get(channel);
-        }
-        Task task = new HashTask(wrapper);
+//        Task task = new HashTask(channel, this.throughputMap.get(channel));
+        Task task = new HashTask(channel);
 
-        System.out.println("creating task for "+channel.getRemoteAddress());
 
-        manager.addTask(task);
-//        key.cancel();
+//        System.out.println("creating task for "+channel.getRemoteAddress());
+
+        this.manager.addTask(task);
+        key.cancel();
     }
 
-//    public void finishTask(SocketChannel channel) {
-//
-//        synchronized (this) {
-////            try {
-//                int throughput = this.clientDataMap.get(channel);
-//                this.clientDataMap.put(channel, throughput + 1);
-////                channel.register(selector, SelectionKey.OP_READ);
-//
-////            } catch (ClosedChannelException e) {
-////                e.printStackTrace();
-////            }
-//        }
-//
-//    }
+    public void finishTask(SocketChannel channel) {
+        try {
+            AtomicInteger atomic = this.throughputMap.get(channel);
+            atomic.getAndIncrement();
 
-    public Collection<ChannelWrapper> getWrappers() {
-        synchronized (this.wrappers) {
-            return this.wrappers.values();
+            channel.register(selector, SelectionKey.OP_READ);
+
+        } catch (ClosedChannelException e) {
+            e.printStackTrace();
         }
+    }
+
+    public static Server getTheInstance() {
+        return theInstance;
+    }
+
+    public Collection<AtomicInteger> getThroughputs() {
+        return this.throughputMap.values();
     }
 
     public static void main(String[] args) {
