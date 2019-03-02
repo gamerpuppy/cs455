@@ -2,11 +2,8 @@ package cs455.scaling.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.channels.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Server {
 
@@ -14,9 +11,9 @@ public class Server {
     private Selector selector;
     private ServerSocketChannel server;
     private ThreadPoolManager manager;
+    private StatisticsThread statisticsThread;
 
-    private Map<SocketChannel, Integer> clientDataMap = new HashMap<>();
-
+    private final Map<SocketChannel, ChannelWrapper> wrappers = new HashMap<>();
 
     private Server(int port, int threadPoolSize, int batchSize, long batchTime) throws IOException {
         this.selector = Selector.open();
@@ -28,19 +25,30 @@ public class Server {
 
         this.manager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
 
+        this.statisticsThread = new StatisticsThread(this);
+
         theInstance = this;
     }
 
     private void run() throws IOException
     {
+        Thread thread = new Thread(this.statisticsThread);
+        thread.start();
+
         this.manager.createAndStartWorkers();
 
         while (true)
         {
             this.selector.select();
 
-            for(SelectionKey key : selector.selectedKeys())
+            Set<SelectionKey> set = this.selector.selectedKeys();
+            Iterator<SelectionKey> it = set.iterator();
+
+            while(it.hasNext())
             {
+                SelectionKey key = it.next();
+                it.remove();
+
                 if (!key.isValid()) {
                     continue;
                 }
@@ -51,7 +59,6 @@ public class Server {
                 } else if (key.isReadable()) {
                     this.makeTask(key);
                 }
-
             }
         }
 
@@ -61,36 +68,47 @@ public class Server {
         SocketChannel channel = this.server.accept();
         channel.configureBlocking(false);
 
-        synchronized (this) {
-            channel.register(this.selector, SelectionKey.OP_READ);
-            this.clientDataMap.put(channel, 0);
+        System.out.println("Connection received from "+channel.getRemoteAddress());
+
+        channel.register(this.selector, SelectionKey.OP_READ);
+        synchronized (this.wrappers) {
+            this.wrappers.put(channel, new ChannelWrapper(channel));
         }
     }
 
-    private void makeTask(SelectionKey key) {
+    private void makeTask(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        Task task = new HashTask(channel);
-        manager.addTask(task);
-        key.cancel();
-    }
-
-    public void finishTask(SocketChannel channel) {
-
-        synchronized (this) {
-            try {
-                int throughput = this.clientDataMap.get(channel);
-                this.clientDataMap.put(channel, throughput + 1);
-                channel.register(selector, SelectionKey.OP_READ);
-
-            } catch (ClosedChannelException e) {
-                e.printStackTrace();
-            }
+        ChannelWrapper wrapper;
+        synchronized (this.wrappers) {
+            wrapper = this.wrappers.get(channel);
         }
+        Task task = new HashTask(wrapper);
 
+        System.out.println("creating task for "+channel.getRemoteAddress());
+
+        manager.addTask(task);
+//        key.cancel();
     }
 
-    public static Server getTheInstance() {
-        return Server.theInstance;
+//    public void finishTask(SocketChannel channel) {
+//
+//        synchronized (this) {
+////            try {
+//                int throughput = this.clientDataMap.get(channel);
+//                this.clientDataMap.put(channel, throughput + 1);
+////                channel.register(selector, SelectionKey.OP_READ);
+//
+////            } catch (ClosedChannelException e) {
+////                e.printStackTrace();
+////            }
+//        }
+//
+//    }
+
+    public Collection<ChannelWrapper> getWrappers() {
+        synchronized (this.wrappers) {
+            return this.wrappers.values();
+        }
     }
 
     public static void main(String[] args) {

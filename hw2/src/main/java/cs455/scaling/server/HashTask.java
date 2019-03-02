@@ -9,10 +9,10 @@ import java.nio.charset.StandardCharsets;
 
 public class HashTask implements Task {
 
-    private final SocketChannel channel;
+    private final ChannelWrapper wrapper;
 
-    public HashTask(SocketChannel channel) {
-        this.channel = channel;
+    public HashTask(ChannelWrapper wrapper) {
+        this.wrapper = wrapper;
     }
 
     @Override
@@ -21,7 +21,8 @@ public class HashTask implements Task {
             byte[] data = this.readFromChannel();
             String hash = SHA.SHA1FromBytesPadded(data, 40);
             this.writeToChannel(hash);
-            Server.getTheInstance().finishTask(channel);
+//            Server.getTheInstance().finishTask(channel);
+            this.wrapper.throughput.incrementAndGet();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -33,8 +34,12 @@ public class HashTask implements Task {
         byte[] ret = new byte[8000];
         ByteBuffer buf = ByteBuffer.wrap(ret);
 
-        while(buf.hasRemaining()) {
-            channel.read(buf);
+        try {
+            this.wrapper.readLock.lock();
+            int bytesRead = this.wrapper.channel.read(buf);
+
+        } finally {
+            this.wrapper.readLock.unlock();
         }
 
         return ret;
@@ -43,8 +48,14 @@ public class HashTask implements Task {
     private void writeToChannel(String hash) throws IOException {
         ByteBuffer buf = ByteBuffer.wrap(hash.getBytes(StandardCharsets.US_ASCII));
 
-        while(buf.hasRemaining()) {
-            channel.write(buf);
+        try {
+            this.wrapper.writeLock.lock();
+            while (buf.hasRemaining()) {
+                this.wrapper.channel.write(buf);
+            }
+
+        } finally {
+            this.wrapper.writeLock.unlock();
         }
     }
 

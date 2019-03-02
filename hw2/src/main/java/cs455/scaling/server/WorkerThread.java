@@ -26,8 +26,9 @@ public class WorkerThread implements Runnable {
             }
 
             while(true) {
+                long timeNow = System.nanoTime();
                 long nanoTimeFinished = this.batch.createTime + this.manager.batchTimeNanos;
-                long millisToWait = (System.nanoTime() - nanoTimeFinished) / 1000000;
+                long millisToWait = (nanoTimeFinished - timeNow) / 1000000;
 
                 if(millisToWait > 0) {
                     wait(millisToWait);
@@ -35,8 +36,8 @@ public class WorkerThread implements Runnable {
                     break;
                 }
             }
-            manager.removeFromQueue(this);
         }
+        manager.removeFromQueue(this);
     }
 
     @Override

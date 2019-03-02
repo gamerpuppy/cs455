@@ -57,20 +57,25 @@ public class ThreadPoolManager {
                 addTaskWorkerQueueEmpty(task);
 
             } else {
+
                 WorkerThread worker = this.workerQueue.peek();
 
-                if(worker.getBatch() == null) {
-                    worker.setBatch(new Batch(task, System.nanoTime()));
-                    worker.notify();
+                synchronized (worker) {
 
-                } else {
-                    List<Task> tasks = worker.getBatch().tasks;
-                    tasks.add(task);
-                    if(tasks.size() == this.batchSize) {
-                        workerQueue.poll();
+                    if (worker.getBatch() == null) {
+                        worker.setBatch(new Batch(task, System.nanoTime()));
                         worker.notify();
+
+                    } else {
+                        List<Task> tasks = worker.getBatch().tasks;
+                        tasks.add(task);
+                        if (tasks.size() == this.batchSize) {
+                            workerQueue.poll();
+                            worker.notify();
+                        }
                     }
                 }
+
             }
         }
     }

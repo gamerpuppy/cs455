@@ -39,15 +39,17 @@ public class Client {
         while(true){
             r.nextBytes(b);
             String hash = SHA.SHA1FromBytesPadded(b, 40);
+            System.out.println("sending hash "+hash);
 
             synchronized (this.unconfirmedHashes) {
                 unconfirmedHashes.add(hash);
             }
 
-            ByteBuffer outBuf = ByteBuffer.wrap(hash.getBytes(StandardCharsets.US_ASCII));
+            ByteBuffer outBuf = ByteBuffer.wrap(b);
             while(outBuf.hasRemaining())
                 channel.write(outBuf);
 
+//            System.in.read();
             Thread.sleep((int)(1000/this.msgRate));
         }
     }
@@ -110,6 +112,8 @@ public class Client {
             }
 
             String hash = new String(buf.array(), StandardCharsets.US_ASCII);
+            System.out.println("received hash "+hash);
+
 
             synchronized (Client.this.unconfirmedHashes) {
                 unconfirmedHashes.remove(hash);
