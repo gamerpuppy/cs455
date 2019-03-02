@@ -10,9 +10,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -85,6 +85,7 @@ public class Client {
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -145,6 +146,9 @@ public class Client {
         @Override
         public void run() {
 
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
             long lastLoopTime = System.currentTimeMillis();
             final long millisBetweenStarts = (long)(UPDATE_INTERVAL * 1000);
 
@@ -162,7 +166,10 @@ public class Client {
                 int sentValue = Client.this.sentCount.getAndSet(0);
                 int receivedValue = Client.this.receivedCount.getAndSet(0);
 
-                System.out.printf("[timestamp] Total Sent Count: %d, Total Received Count: %d\n",sentValue , receivedValue);
+                LocalDateTime now = LocalDateTime.now();
+
+
+                System.out.printf("[%s] Total Sent Count: %d, Total Received Count: %d\n", dtf.format(now), sentValue , receivedValue);
 
 
             }

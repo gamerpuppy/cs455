@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Server {
 
     private static Server theInstance;
-    private Selector selector;
-    private ServerSocketChannel server;
-    private ThreadPoolManager manager;
-    private StatisticsThread statisticsThread;
+    private final Selector selector;
+    private final ServerSocketChannel server;
+    private final ThreadPoolManager manager;
+    private final StatisticsThread statisticsThread;
 
     private final ConcurrentHashMap<SocketChannel, AtomicInteger> throughputMap = new ConcurrentHashMap<>();
 
@@ -79,11 +79,9 @@ public class Server {
         this.throughputMap.put(channel, new AtomicInteger(0));
     }
 
-    private void makeTask(SelectionKey key) throws IOException {
+    private void makeTask(SelectionKey key) {
         SocketChannel channel = (SocketChannel) key.channel();
-//        Task task = new HashTask(channel, this.throughputMap.get(channel));
         Task task = new HashTask(channel);
-
 
 //        System.out.println("creating task for "+channel.getRemoteAddress());
 
@@ -91,15 +89,20 @@ public class Server {
         key.cancel();
     }
 
+    public void removeChannel(SocketChannel channel) {
+        this.throughputMap.remove(channel);
+    }
+
     public void finishTask(SocketChannel channel) {
         try {
+            channel.register(selector, SelectionKey.OP_READ);
+
             AtomicInteger atomic = this.throughputMap.get(channel);
             atomic.getAndIncrement();
 
-            channel.register(selector, SelectionKey.OP_READ);
+        } catch (IOException e) {
+            this.throughputMap.remove(channel);
 
-        } catch (ClosedChannelException e) {
-            e.printStackTrace();
         }
     }
 

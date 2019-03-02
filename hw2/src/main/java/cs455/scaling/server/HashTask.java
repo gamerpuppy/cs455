@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HashTask implements Task {
 
@@ -19,32 +18,31 @@ public class HashTask implements Task {
     @Override
     public void execute() {
         try {
-            byte[] data = this.readFromChannel();
+            byte[] data = readFromChannel();
             String hash = SHA.SHA1FromBytesPadded(data, 40);
 
 //            System.out.println("sending hash " + hash.substring(0, 8));
 
             this.writeToChannel(hash);
-
-//            counter.getAndIncrement();
-//            Server.getTheInstance().reRegisterChannel(channel);
-
             Server.getTheInstance().finishTask(channel);
 
-
         } catch (IOException e) {
-            e.printStackTrace();
+            if(!this.channel.isOpen())
+                Server.getTheInstance().removeChannel(this.channel);
 
         }
     }
 
     private byte[] readFromChannel() throws IOException {
-        byte[] ret = new byte[8000];
-        ByteBuffer buf = ByteBuffer.wrap(ret);
-        
-        int bytesRead = channel.read(buf);
+        byte[] data = new byte[8000];
+        ByteBuffer buf = ByteBuffer.wrap(data);
+        int bytesRead = this.channel.read(buf);
 
-        return ret;
+        if(bytesRead == -1) {
+            throw new IOException();
+        }
+
+        return data;
     }
 
     private void writeToChannel(String hash) throws IOException {

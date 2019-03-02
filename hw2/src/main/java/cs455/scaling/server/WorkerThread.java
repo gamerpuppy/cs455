@@ -31,7 +31,7 @@ public class WorkerThread implements Runnable {
                 long millisToWait = (nanoTimeFinished - timeNow) / 1000000;
 
                 if(millisToWait > 0) {
-                    wait(millisToWait);
+                    this.wait(millisToWait);
                 } else {
                     break;
                 }

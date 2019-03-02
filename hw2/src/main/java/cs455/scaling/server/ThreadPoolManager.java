@@ -57,11 +57,8 @@ public class ThreadPoolManager {
                 addTaskWorkerQueueEmpty(task);
 
             } else {
-
                 WorkerThread worker = this.workerQueue.peek();
-
                 synchronized (worker) {
-
                     if (worker.getBatch() == null) {
                         worker.setBatch(new Batch(task, System.nanoTime()));
                         worker.notify();
@@ -73,6 +70,7 @@ public class ThreadPoolManager {
                             workerQueue.poll();
                             worker.notify();
                         }
+
                     }
                 }
 

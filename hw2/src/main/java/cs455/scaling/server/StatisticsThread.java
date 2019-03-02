@@ -1,17 +1,19 @@
 package cs455.scaling.server;
 
-import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class StatisticsThread implements Runnable {
 
-    private final double UPDATE_INTERVAL = 10d;
+    private final double UPDATE_INTERVAL = 20d;
 
     @Override
     public void run() {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-DD HH:MM:SS");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         long lastLoopTime = System.currentTimeMillis();
         final long millisBetweenStarts = (long)(UPDATE_INTERVAL * 1000);
@@ -30,17 +32,15 @@ public class StatisticsThread implements Runnable {
             Collection<AtomicInteger> throughputs = Server.getTheInstance().getThroughputs();
 
             int sum = 0;
-
             int[] values = new int[throughputs.size()];
             int i = 0;
 
             for(AtomicInteger atomic : throughputs) {
                 int value = atomic.getAndSet(0);
-                values[i] = value;
+                values[i++] = value;
                 sum += value;
             }
-
-            double msgsPerSec = (double) sum / UPDATE_INTERVAL;
+            final double msgsPerSec = (double) sum / UPDATE_INTERVAL;
 
             final double mean;
             if(throughputs.size() > 0)
@@ -50,21 +50,21 @@ public class StatisticsThread implements Runnable {
 
             double sumDiffSq = 0;
             for(int value : values) {
-                double diff = mean-value;
+                double perSec = value / UPDATE_INTERVAL;
+                double diff = perSec-mean;
                 sumDiffSq += diff*diff;
             }
 
             double stdDev;
             if(throughputs.size() > 1)
-                stdDev = sumDiffSq / (throughputs.size()-1) / UPDATE_INTERVAL;
+                stdDev = Math.sqrt(sumDiffSq / (throughputs.size()-1) );
             else
                 stdDev = 0;
 
-            System.out.printf("%s Server throughput: %.2f messages/s," +
-                    "Active Client Connections: %d, " +
-                    "Mean Per-client Throughput: %.2f messages/s, " +
-                    "Std. Dev. Of Per-client Throughput: %.3f messages/s\n",
-                    "time", msgsPerSec, throughputs.size(), mean, stdDev);
+            LocalDateTime now = LocalDateTime.now();
+
+            System.out.printf("[%s] Server throughput: %.2f messages/s, Active Client Connections: %d, Mean Per-client Throughput: %.2f messages/s, Std. Dev. Of Per-client Throughput: %.3f messages/s\n",
+                    dtf.format(now), msgsPerSec, throughputs.size(), mean, stdDev);
         }
     }
 
