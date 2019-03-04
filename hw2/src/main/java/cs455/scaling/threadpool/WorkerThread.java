@@ -1,19 +1,19 @@
-package cs455.scaling.server;
+package cs455.scaling.threadpool;
 
 public class WorkerThread implements Runnable {
 
     private final ThreadPoolManager manager;
     private Batch batch = null;
 
-    public WorkerThread(ThreadPoolManager manager) {
+    protected WorkerThread(ThreadPoolManager manager) {
         this.manager = manager;
     }
 
-    public void setBatch(Batch batch) {
+    protected void setBatch(Batch batch) {
         this.batch = batch;
     }
 
-    public Batch getBatch() {
+    protected Batch getBatch() {
         return this.batch;
     }
 
@@ -30,11 +30,13 @@ public class WorkerThread implements Runnable {
                 long nanoTimeFinished = this.batch.createTime + this.manager.batchTimeNanos;
                 long millisToWait = (nanoTimeFinished - timeNow) / 1000000;
 
-                if(millisToWait > 0) {
-                    this.wait(millisToWait);
-                } else {
+                if(this.batch.tasks.size() == this.manager.batchSize)
                     break;
-                }
+
+                if(millisToWait <= 0)
+                    break;
+
+                this.wait(millisToWait);
             }
         }
         manager.removeFromQueue(this);

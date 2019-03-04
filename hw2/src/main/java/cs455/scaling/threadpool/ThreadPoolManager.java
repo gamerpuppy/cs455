@@ -1,4 +1,4 @@
-package cs455.scaling.server;
+package cs455.scaling.threadpool;
 
 import java.util.ArrayDeque;
 import java.util.List;
@@ -6,19 +6,25 @@ import java.util.Queue;
 
 public class ThreadPoolManager {
 
-    public final int poolSize;
-    public final int batchSize;
-    public final long batchTimeNanos;
+    private static ThreadPoolManager theInstance = null;
 
-    private final Queue<WorkerThread> workerQueue;
-    private final ArrayDeque<Batch> batchList;
+    private final int poolSize;
+    protected final int batchSize;
+    protected final long batchTimeNanos;
 
-    public ThreadPoolManager(int poolSize, int batchSize, long batchTimeNanos) {
+    private final Queue<WorkerThread> workerQueue = new ArrayDeque<>();
+    private final ArrayDeque<Batch> batchList = new ArrayDeque<>();
+
+    public static ThreadPoolManager getInstance() {
+        return theInstance;
+    }
+
+    public ThreadPoolManager(int poolSize, int batchSize, double batchTime) {
         this.poolSize = poolSize;
         this.batchSize = batchSize;
-        this.batchTimeNanos = batchTimeNanos;
-        this.workerQueue = new ArrayDeque<>();
-        this.batchList = new ArrayDeque<>();
+        this.batchTimeNanos = (long)(batchTime * 1000000000);
+
+        theInstance = this;
     }
 
     public void createAndStartWorkers() {
@@ -26,26 +32,6 @@ public class ThreadPoolManager {
             WorkerThread worker = new WorkerThread(this);
             Thread thread = new Thread(worker);
             thread.start();
-        }
-    }
-
-    private void addTaskWorkerQueueEmpty(Task task) {
-        boolean completed = false;
-        for(Batch batch : this.batchList) {
-            if(batch.tasks.size() < this.batchSize) {
-                batch.tasks.add(task);
-                completed = true;
-            }
-        }
-
-        if(!completed) {
-            this.batchList.add(new Batch(task, System.nanoTime()));
-        }
-    }
-
-    public void removeFromQueue(WorkerThread worker) {
-        synchronized (this) {
-            workerQueue.remove(worker);
         }
     }
 
@@ -78,7 +64,21 @@ public class ThreadPoolManager {
         }
     }
 
-    public Batch makeAvailable(WorkerThread worker)
+    private void addTaskWorkerQueueEmpty(Task task) {
+        boolean completed = false;
+        for(Batch batch : this.batchList) {
+            if(batch.tasks.size() < this.batchSize) {
+                batch.tasks.add(task);
+                completed = true;
+            }
+        }
+
+        if(!completed) {
+            this.batchList.add(new Batch(task, System.nanoTime()));
+        }
+    }
+
+    protected Batch makeAvailable(WorkerThread worker)
     {
         synchronized (this)
         {
@@ -108,8 +108,11 @@ public class ThreadPoolManager {
         }
     }
 
-
-
+    protected void removeFromQueue(WorkerThread worker) {
+        synchronized (this) {
+            workerQueue.remove(worker);
+        }
+    }
 
 }
 

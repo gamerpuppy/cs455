@@ -1,14 +1,14 @@
-package cs455.scaling.server;
+package cs455.scaling.threadpool;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Batch {
+class Batch {
 
-    public final List<Task> tasks;
-    public final long createTime;
+    protected final List<Task> tasks;
+    protected final long createTime;
 
-    public Batch(Task task, long createTime) {
+    Batch(Task task, long createTime) {
         this.tasks = new ArrayList<>();
         this.tasks.add(task);
         this.createTime = createTime;

@@ -1,23 +1,23 @@
 package cs455.scaling.server;
 
+import cs455.scaling.threadpool.ThreadPoolManager;
+import cs455.scaling.server.tasks.ReadTask;
+import cs455.scaling.server.tasks.RegisterTask;
+import cs455.scaling.server.tasks.SocketChannelWrapper;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Server {
 
     private static Server theInstance;
     private final Selector selector;
     private final ServerSocketChannel server;
-    private final ThreadPoolManager manager;
-    private final StatisticsThread statisticsThread;
+    private final Map<SocketChannel, SocketChannelWrapper> wrapperMap = new HashMap<>();
 
-    private final ConcurrentHashMap<SocketChannel, AtomicInteger> throughputMap = new ConcurrentHashMap<>();
-
-    private Server(int port, int threadPoolSize, int batchSize, long batchTime) throws IOException {
+    private Server(int port) throws IOException {
         this.selector = Selector.open();
 
         this.server = ServerSocketChannel.open();
@@ -25,19 +25,15 @@ public class Server {
         this.server.configureBlocking(false);
         this.server.register(selector, SelectionKey.OP_ACCEPT);
 
-        this.manager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
-
-        this.statisticsThread = new StatisticsThread();
-
         theInstance = this;
+    }
+
+    public static Server getTheInstance() {
+        return theInstance;
     }
 
     private void run() throws IOException
     {
-        Thread thread = new Thread(this.statisticsThread);
-        thread.start();
-
-        this.manager.createAndStartWorkers();
 
         while (true)
         {
@@ -56,10 +52,24 @@ public class Server {
                 }
 
                 if (key.isAcceptable()) {
-                    this.register();
+                    key.cancel();
+                    RegisterTask task = new RegisterTask(this.server);
+                    ThreadPoolManager.getInstance().addTask(task);
+
 
                 } else if (key.isReadable()) {
-                    this.makeTask(key);
+                    key.cancel();
+                    SocketChannel channel = (SocketChannel) key.channel();
+
+                    SocketChannelWrapper wrapper;
+                    if(wrapperMap.containsKey(channel)) {
+                        wrapper = wrapperMap.get(channel);
+                    } else {
+                        wrapper = new SocketChannelWrapper(channel);
+                    }
+
+                    ReadTask task = new ReadTask(wrapper);
+                    ThreadPoolManager.getInstance().addTask(task);
 
                 }
             }
@@ -68,50 +78,20 @@ public class Server {
 
     }
 
-    private void register() throws IOException {
-        SocketChannel channel = this.server.accept();
-        channel.socket().setReceiveBufferSize(4096*4);
-        channel.configureBlocking(false);
-
-//        System.out.println("connection received from "+channel.getRemoteAddress());
-
-        channel.register(this.selector, SelectionKey.OP_READ);
-        this.throughputMap.put(channel, new AtomicInteger(0));
-    }
-
-    private void makeTask(SelectionKey key) {
-        SocketChannel channel = (SocketChannel) key.channel();
-        Task task = new HashTask(channel);
-
-//        System.out.println("creating task for "+channel.getRemoteAddress());
-
-        this.manager.addTask(task);
-        key.cancel();
-    }
-
-    public void removeChannel(SocketChannel channel) {
-        this.throughputMap.remove(channel);
-    }
-
-    public void finishTask(SocketChannel channel) {
+    public void registerChannel(SelectableChannel channel, int keyType) {
         try {
-            channel.register(selector, SelectionKey.OP_READ);
+            channel.register(selector, keyType);
 
-            AtomicInteger atomic = this.throughputMap.get(channel);
-            atomic.getAndIncrement();
+        } catch (CancelledKeyException e) {
+//            e.printStackTrace();
+
+            if(SocketChannel.class == channel.getClass())
+                StatisticsThread.getInstance().removeChannel((SocketChannel) channel);
 
         } catch (IOException e) {
-            this.throughputMap.remove(channel);
+            e.printStackTrace();
 
         }
-    }
-
-    public static Server getTheInstance() {
-        return theInstance;
-    }
-
-    public Collection<AtomicInteger> getThroughputs() {
-        return this.throughputMap.values();
     }
 
     public static void main(String[] args) {
@@ -125,10 +105,17 @@ public class Server {
         int batchSize = Integer.parseInt(args[2]);
 
         double batchTime = Double.parseDouble(args[3]);
-        long batchTimeNanos = (long)(batchTime * 1000000000);
 
         try {
-            Server server = new Server(portNum, threadPoolSize, batchSize, batchTimeNanos);
+            Server server = new Server(portNum);
+
+            StatisticsThread statistics = StatisticsThread.getInstance();
+            Thread thread = new Thread(statistics);
+            thread.start();
+
+            ThreadPoolManager manager = new ThreadPoolManager(threadPoolSize, batchSize, batchTime);
+            manager.createAndStartWorkers();
+
             server.run();
 
         } catch (IOException e) {

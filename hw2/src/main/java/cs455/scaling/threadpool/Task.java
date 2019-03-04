@@ -1,4 +1,4 @@
-package cs455.scaling.server;
+package cs455.scaling.threadpool;
 
 public interface Task {
 
