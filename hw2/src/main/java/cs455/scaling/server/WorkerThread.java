@@ -9,7 +9,7 @@ public class WorkerThread implements Runnable {
         this.manager = manager;
     }
 
-    public synchronized void setBatch(Batch batch) {
+    public void setBatch(Batch batch) {
         this.batch = batch;
     }
 
