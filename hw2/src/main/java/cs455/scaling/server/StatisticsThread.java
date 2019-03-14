@@ -12,7 +12,7 @@ public class StatisticsThread implements Runnable {
 
     private static StatisticsThread theInstance = null;
 
-    private final double UPDATE_INTERVAL = 5d;
+    private final double UPDATE_INTERVAL = 20d;
     private final ConcurrentHashMap<SocketChannel, AtomicInteger> countMap = new ConcurrentHashMap<>();
 
     private StatisticsThread() { }
