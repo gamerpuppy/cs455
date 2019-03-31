@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.wordcount;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -13,25 +13,25 @@ import java.io.IOException;
 /**
  * This is the main class. Hadoop will invoke the main method of this class.
  */
-public class Part1Job {
+public class WordCountJob {
     public static void main(String[] args) {
         try {
             Configuration conf = new Configuration();
             // Give the MapRed job a name. You'll see this name in the Yarn webapp.
             Job job = Job.getInstance(conf, "word count");
             // Current class.
-            job.setJarByClass(Part1Job.class);
-            // Mapper
-            job.setMapperClass(Part1Mapper.class);
+            job.setJarByClass(WordCountJob.class);
+            // MetadataMapper
+            job.setMapperClass(WordCountMapper.class);
             // Combiner. We use the reducer as the combiner in this case.
-            job.setCombinerClass(Part1Reducer.class);
+            job.setCombinerClass(WordCountReducer.class);
             // Reducer
-            job.setReducerClass(Part1Reducer.class);
-            // Outputs from the Mapper.
+            job.setReducerClass(WordCountReducer.class);
+            // Outputs from the MetadataMapper.
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(IntWritable.class);
             // Outputs from Reducer. It is sufficient to set only the following two properties
-            // if the Mapper and Reducer has same key and value types. It is set separately for
+            // if the MetadataMapper and Reducer has same key and value types. It is set separately for
             // elaboration.
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(IntWritable.class);
