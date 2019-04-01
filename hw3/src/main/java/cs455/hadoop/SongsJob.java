@@ -27,12 +27,12 @@ public class SongsJob {
             job.setOutputValueClass(CustomWritable.class);
 
             MultipleInputs.addInputPath(job,
-                    new Path("/data/metadata"),
+                    new Path("/data/metadata/metadata1.csv"),
                     TextInputFormat.class,
                     MetadataMapper.class);
 
             MultipleInputs.addInputPath(job,
-                    new Path("/data/analysis"),
+                    new Path("/data/analysis/analysis1.csv"),
                     TextInputFormat.class,
                     AnalysisMapper.class);
 
