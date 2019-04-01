@@ -27,6 +27,12 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
+
+        if(key.getId() == CustomWritableComparable.ERROR_LINE_KEY) {
+            context.write(key, values.iterator().next());
+            return;
+        }
+
         // only one key for now
         if(key.getId() != CustomWritableComparable.SONG_ID_KEY)
             return;
@@ -42,6 +48,9 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
             else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1)
                 metadata = (MetadataValue1) customWritable.getInner();
         }
+
+        if(analysis == null || metadata == null)
+            return;
 
         if(analysis.getHotttnesss() > hotttnessst) {
             hotttnessst = analysis.getHotttnesss();

@@ -17,8 +17,20 @@ public class CsvTokenizer {
         return line.substring(desc.start, desc.end);
     }
 
-    public double getTokAsDouble(int idx) {
-        return Double.parseDouble(getTokAt(idx));
+    public double getTokAsDouble(int idx) throws Exception {
+
+        String tok = getTokAt(idx);
+
+        if(tok.equals(""))
+            return 0;
+
+        try {
+            double ret = Double.parseDouble(getTokAt(idx));
+
+            return ret;
+        } catch (Exception e) {
+            throw new Exception("error getting double at idx:"+idx);
+        }
     }
 
     private void generateIndices() {

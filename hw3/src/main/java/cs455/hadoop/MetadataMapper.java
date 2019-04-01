@@ -1,6 +1,5 @@
 package cs455.hadoop;
 
-import cs455.hadoop.io.AnalysisValue1;
 import cs455.hadoop.io.MetadataValue1;
 import cs455.hadoop.util.CsvTokenizer;
 import cs455.hadoop.io.CustomWritable;
@@ -15,7 +14,7 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
-        // Should exclude header lines
+//         Should exclude header lines
         if(value.charAt(0) != '0')
             return;
 
@@ -32,7 +31,7 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
                 .setTitle(csv.getTokAt(9));
 
         CustomWritable outValue = new CustomWritable()
-                .setId(CustomWritable.ANALYSIS_VALUE_1)
+                .setId(CustomWritable.METADATA_VALUE_1)
                 .setInner(metadataValue1);
 
         context.write(outKey, outValue);

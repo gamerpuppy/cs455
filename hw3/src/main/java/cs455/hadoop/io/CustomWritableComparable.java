@@ -1,6 +1,7 @@
 package cs455.hadoop.io;
 
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 
@@ -20,6 +21,8 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
     public static final int MOSTFADE_OUT_KEY = 4;
     public static final int LONGEST_OUT_KEY = 51;
     public static final int SHORTEST_OUT_KEY = 52;
+
+    public static final int ERROR_LINE_KEY = 66;
 
     private IntWritable id = new IntWritable();
     private WritableComparable inner = null;
@@ -111,6 +114,9 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
             case LONGEST_OUT_KEY:
             case SHORTEST_OUT_KEY:
                 return new Text();
+
+            case ERROR_LINE_KEY:
+                return new LongWritable();
 
             default: return new IntWritable(-1);
         }
