@@ -1,6 +1,7 @@
 package cs455.hadoop.util;
 
 import cs455.hadoop.SongsJob;
+import cs455.hadoop.wireformats.MetadataQ1Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -12,15 +13,15 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class PrintLineJob {
+public class SongIdArtistJob {
 
     public static void main(String[] args) {
         try {
             Configuration conf = new Configuration();
 
-            Job job = Job.getInstance(conf, "printlinejob");
-            job.setJarByClass(PrintLineJob.class);
-            job.setMapperClass(PrintLineMapper.class);
+            Job job = Job.getInstance(conf, "songIdArtist");
+            job.setJarByClass(SongIdArtistJob.class);
+            job.setMapperClass(MetadataMapper.class);
 
             job.setMapOutputKeyClass(Text.class);
             job.setMapOutputValueClass(Text.class);
@@ -38,16 +39,34 @@ public class PrintLineJob {
 
 }
 
-
-class PrintLineMapper extends Mapper<LongWritable, Text, Text, Text> {
+class MetadataMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     protected void map(LongWritable byteOffset, Text value, Mapper.Context context) throws IOException, InterruptedException {
+        if(value.charAt(0) != '0')
+            return;
 
-        String seq = "'SOJKTJG12AB0182516'";
+        CsvTokenizer csv = new CsvTokenizer(value.toString());
 
-        if(value.toString().contains(seq))
-            context.write(new Text(seq), value);
+        String artistId = csv.getTokAt(3);
+        String songId = csv.getTokAt(8);
 
+        context.write(new Text(songId), new Text(artistId));
     }
 
 }
+
+//class AnalysisMapper extends Mapper<LongWritable, Text, Text, Text> {
+//
+//    protected void map(LongWritable byteOffset, Text value, Mapper.Context context) throws IOException, InterruptedException {
+//        if(value.charAt(0) != '0')
+//            return;
+//
+//        CsvTokenizer csv = new CsvTokenizer(value.toString());
+//
+//        String songId = csv.getTokAt(1);
+////        String artistId = csv.getTokAt(3);
+//
+//        context.write(new Text(songId), new Text(artistId));
+//    }
+//
+//}

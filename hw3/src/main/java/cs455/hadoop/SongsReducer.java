@@ -1,78 +1,59 @@
 package cs455.hadoop;
 
+import cs455.hadoop.wireformats.CustomWritable;
+import cs455.hadoop.wireformats.CustomWritableComparable;
+import cs455.hadoop.wireformats.MetadataQ1Value;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.HashMap;
 
-public class SongsReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritable, CustomWritableComparable, CustomWritable> {
 
-    private HashMap<String, Integer> artistSongCountMap = new HashMap<>();
+    // Question 1
+    private String maxSongsArtist = "";
+    private int maxSongs = 0;
+
 
     private String maxHotnessTitle = null;
     private Double maxHotness = null;
 
+
+
     @Override
-    protected void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
 
-        reduceQ1(key, values, context);
-
-        switch (key.charAt(0)){
+        switch(key.getId()) {
             // Question 1
-            case '1':
+            case CustomWritableComparable.METADATAQ1KEY:
                 reduceQ1(key, values, context);
                 break;
-            case '3':
-                reduceQ3(key, values, context);
-                break;
+
         }
 
     }
 
-    private void reduceQ1(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-        int totalCount = 0;
-        for(IntWritable value : values) {
-            totalCount += value.get();
+    protected void reduceQ1(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
+        int totalSongCount = 0;
+        String artist = null;
+        for(CustomWritable rawValue : values) {
+            MetadataQ1Value value = (MetadataQ1Value) rawValue.getInner();
+            artist = value.getArtistName();
+            totalSongCount += value.getSongCount();
         }
 
-        String keyStr = key.toString();
-
-        int count = this.artistSongCountMap.getOrDefault(keyStr, 0);
-        this.artistSongCountMap.put(keyStr, count + totalCount);
-    }
-
-    private void reduceQ3(Text key, Iterable<IntWritable> values, Context context) {
-        String[] splits = key.toString().split(",");
-
-        String songTitle = splits[0].substring(1);
-        Double hotness = Double.parseDouble(splits[1]);
-
-        if(maxHotness == null || hotness > maxHotness) {
-            maxHotness = hotness;
-            maxHotnessTitle = songTitle;
+        if(totalSongCount > maxSongs) {
+            maxSongs = totalSongCount;
+            maxSongsArtist = artist;
         }
     }
 
     private void cleanupQ1(Context context) throws IOException, InterruptedException {
-        String maxKey = "this should not appear";
-        int maxCount = -1;
-
-        for (String artistId : this.artistSongCountMap.keySet()) {
-            int count = this.artistSongCountMap.get(artistId);
-            if (count > maxCount) {
-                maxKey = artistId;
-                maxCount = count;
-            }
-        }
-
-//        String name = maxKey.split(",")[1];
-        context.write(new Text(maxKey), new IntWritable(maxCount));
-    }
-
-    private void cleanupQ3(Context context) throws IOException, InterruptedException {
-        context.write(new Text('3'+ maxHotnessTitle +','+maxHotness.toString()), new IntWritable(0));
+        CustomWritableComparable key = new CustomWritableComparable(CustomWritableComparable.OUTQ1KEY, new Text(maxSongsArtist));
+        CustomWritable value = new CustomWritable(CustomWritable.INT, new IntWritable(maxSongs));
+        context.write(key, value);
     }
 
     @Override
@@ -81,7 +62,7 @@ public class SongsReducer extends Reducer<Text, IntWritable, Text, IntWritable> 
         cleanupQ1(context);
 
         // Question 3
-        cleanupQ3(context);
+//        cleanupQ3(context);
     }
 
 }
