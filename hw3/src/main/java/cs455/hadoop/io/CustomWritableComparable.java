@@ -1,4 +1,4 @@
-package cs455.hadoop.wireformats;
+package cs455.hadoop.io;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -10,8 +10,16 @@ import java.io.IOException;
 
 public class CustomWritableComparable implements WritableComparable<CustomWritableComparable> {
 
-    public static final int METADATAQ1KEY = 1;
-    public static final int OUTQ1KEY = 66;
+    public static final int METADATA_KEY_1 = 10;
+    public static final int ANALYSIS_KEY_1 = 32;
+    public static final int SONG_ID_KEY = 513;
+
+    public static final int MOSTSONGS_OUT_KEY = 1;
+    public static final int LOUDEST_OUT_KEY = 2;
+    public static final int HOTTTNESSS_OUT_KEY = 3;
+    public static final int MOSTFADE_OUT_KEY = 4;
+    public static final int LONGEST_OUT_KEY = 51;
+    public static final int SHORTEST_OUT_KEY = 52;
 
     private IntWritable id = new IntWritable();
     private WritableComparable inner = null;
@@ -31,12 +39,14 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
         return inner;
     }
 
-    public void setId(int id) {
+    public CustomWritableComparable setId(int id) {
         this.id.set(id);
+        return this;
     }
 
-    public void setInner(WritableComparable inner) {
+    public CustomWritableComparable setInner(WritableComparable inner) {
         this.inner = inner;
+        return this;
     }
 
     @Override
@@ -90,11 +100,16 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
         return id.get()+":"+inner.toString();
     }
 
-
     private static WritableComparable getInnerInstance(int id) {
         switch(id) {
-            case METADATAQ1KEY:
-            case OUTQ1KEY:
+            case ANALYSIS_KEY_1:
+            case METADATA_KEY_1:
+            case MOSTSONGS_OUT_KEY:
+            case HOTTTNESSS_OUT_KEY:
+            case LOUDEST_OUT_KEY:
+            case MOSTFADE_OUT_KEY:
+            case LONGEST_OUT_KEY:
+            case SHORTEST_OUT_KEY:
                 return new Text();
 
             default: return new IntWritable(-1);

@@ -1,6 +1,5 @@
 package cs455.hadoop.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class CsvTokenizer {
@@ -13,12 +12,13 @@ public class CsvTokenizer {
         generateIndices();
     }
 
-    public String getTokAt(int idx) throws IOException {
-        if(idx >= tokenDescs.size())
-            throw new IOException("error getting idx "+idx+":"+line);
-
+    public String getTokAt(int idx) {
         TokenDesc desc = tokenDescs.get(idx);
         return line.substring(desc.start, desc.end);
+    }
+
+    public double getTokAsDouble(int idx) {
+        return Double.parseDouble(getTokAt(idx));
     }
 
     private void generateIndices() {

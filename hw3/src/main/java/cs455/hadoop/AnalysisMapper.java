@@ -1,57 +1,43 @@
 package cs455.hadoop;
 
+import cs455.hadoop.io.AnalysisValue1;
+import cs455.hadoop.io.CustomWritable;
+import cs455.hadoop.io.CustomWritableComparable;
 import cs455.hadoop.util.CsvTokenizer;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import java.util.HashMap;
 
-public class AnalysisMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-
-    // Q2
-    private HashMap<String, Integer> q2Map = new HashMap<>();
+public class AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
+        // Should exclude header lines
         if(value.charAt(0) != '0')
             return;
 
         CsvTokenizer csv = new CsvTokenizer(value.toString());
+        String songId = csv.getTokAt(1);
 
-        Double loudness = Double.parseDouble(csv.getTokAt(10));
-        String artistId = csv.getTokAt(3);
-        String artistName = csv.getTokAt(7);
-        String songTitle = csv.getTokAt(9);
+        CustomWritableComparable outKey = new CustomWritableComparable()
+                .setId(CustomWritableComparable.SONG_ID_KEY)
+                .setInner(new Text(songId));
 
-        // Question 1
-//        mapQ1(artistId, artistName);
+        AnalysisValue1 analysisValue = new AnalysisValue1()
+                .setHotttnesss(csv.getTokAsDouble(2))
+                .setDanceability(csv.getTokAsDouble(4))
+                .setDuration(csv.getTokAsDouble(5))
+                .setEndFadeIn(csv.getTokAsDouble(6))
+                .setEnergy(csv.getTokAsDouble(7))
+                .setLoudness(csv.getTokAsDouble(10));
+
+        CustomWritable outValue = new CustomWritable()
+                .setId(CustomWritable.ANALYSIS_VALUE_1)
+                .setInner(analysisValue);
+
+        context.write(outKey, outValue);
     }
 
-    private void mapQ2(String artistId, String artistName) {
-        String key = '1'+artistId+','+artistName;
-        int count = this.q2Map.getOrDefault(key, 0);
-        this.q2Map.put(key, count + 1);
-    }
-
-    private void cleanupQ2(Context context) throws IOException, InterruptedException {
-        for (String q1Key : this.q2Map.keySet()) {
-            int count = this.q2Map.get(q1Key);
-            context.write(new Text(q1Key), new IntWritable(count));
-        }
-    }
-
-    @Override
-    protected void cleanup(Context context) throws IOException, InterruptedException {
-        // Question 1
-        cleanupQ2(context);
-    }
-
-    public static void main(String[] args) throws Exception {
-        Text input = new Text("");
-
-        new AnalysisMapper().map(new LongWritable(100), input, null);
-    }
 }

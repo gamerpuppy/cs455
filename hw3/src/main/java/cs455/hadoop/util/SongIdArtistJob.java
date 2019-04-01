@@ -1,7 +1,5 @@
 package cs455.hadoop.util;
 
-import cs455.hadoop.SongsJob;
-import cs455.hadoop.wireformats.MetadataQ1Value;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;

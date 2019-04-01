@@ -1,9 +1,8 @@
-package cs455.hadoop.wireformats;
+package cs455.hadoop.io;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -14,7 +13,8 @@ public class CustomWritable implements Writable {
     public static final int INT = 0;
     public static final int TEXT = 1;
     public static final int DOUBLE = 2;
-    public static final int METADATAQ1VALUE= 50;
+    public static final int METADATA_VALUE_1 = 50;
+    public static final int ANALYSIS_VALUE_1 = 123;
 
     private IntWritable id = new IntWritable();
     private Writable inner = null;
@@ -34,12 +34,14 @@ public class CustomWritable implements Writable {
         return inner;
     }
 
-    public void setId(int id) {
+    public CustomWritable setId(int id) {
         this.id.set(id);
+        return this;
     }
 
-    public void setInner(Writable inner) {
+    public CustomWritable setInner(Writable inner) {
         this.inner = inner;
+        return this;
     }
 
     @Override
@@ -64,7 +66,8 @@ public class CustomWritable implements Writable {
     private static Writable getInnerInstance(int id) {
         switch(id) {
             case TEXT: return new Text();
-            case METADATAQ1VALUE: return new MetadataQ1Value();
+            case METADATA_VALUE_1: return new MetadataValue1();
+            case ANALYSIS_VALUE_1: return new AnalysisValue1();
 
             default: return new IntWritable(-1);
         }
