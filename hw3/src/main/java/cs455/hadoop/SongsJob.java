@@ -18,7 +18,7 @@ public class SongsJob {
 
             Job job = Job.getInstance(conf, "songs job");
             job.setJarByClass(SongsJob.class);
-            job.setReducerClass(SongsReducer.class);
+            job.setReducerClass(SongsReducer2.class);
 
             job.setMapOutputKeyClass(CustomWritableComparable.class);
             job.setMapOutputValueClass(CustomWritable.class);

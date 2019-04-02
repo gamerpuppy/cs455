@@ -23,6 +23,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
     public static final int SHORTEST_OUT_KEY = 52;
 
     public static final int ERROR_LINE_KEY = 66;
+    public static final int DEBUG_KEY = -1;
 
     private IntWritable id = new IntWritable();
     private WritableComparable inner = null;
@@ -68,6 +69,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
             return false;
 
         CustomWritableComparable cw = (CustomWritableComparable) o;
+
         if(id != cw.id)
             return false;
         if(inner == null && cw.inner == null)
@@ -113,6 +115,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
             case MOSTFADE_OUT_KEY:
             case LONGEST_OUT_KEY:
             case SHORTEST_OUT_KEY:
+            case DEBUG_KEY:
                 return new Text();
 
             case ERROR_LINE_KEY:

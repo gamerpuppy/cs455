@@ -19,42 +19,28 @@ public class AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableCom
         // Should exclude header lines
 //        if(value.charAt(0) != '0')
 //            return;
+        CsvTokenizer csv = new CsvTokenizer(value.toString());
+        String songId = csv.getTokAt(1);
 
-        try {
-            CsvTokenizer csv = new CsvTokenizer(value.toString());
-            String songId = csv.getTokAt(1);
+        CustomWritableComparable outKey = new CustomWritableComparable()
+                .setId(CustomWritableComparable.SONG_ID_KEY)
+                .setInner(new Text(songId));
 
-            CustomWritableComparable outKey = new CustomWritableComparable()
-                    .setId(CustomWritableComparable.SONG_ID_KEY)
-                    .setInner(new Text(songId));
+        AnalysisValue1 analysisValue = new AnalysisValue1()
+                .setHotttnesss(csv.getTokAsDouble(2))
+                .setDanceability(csv.getTokAsDouble(4))
+                .setDuration(csv.getTokAsDouble(5))
+                .setEndFadeIn(csv.getTokAsDouble(6))
+                .setEnergy(csv.getTokAsDouble(7))
+                .setLoudness(csv.getTokAsDouble(10));
 
-            AnalysisValue1 analysisValue = new AnalysisValue1()
-                    .setHotttnesss(csv.getTokAsDouble(2))
-                    .setDanceability(csv.getTokAsDouble(4))
-                    .setDuration(csv.getTokAsDouble(5))
-                    .setEndFadeIn(csv.getTokAsDouble(6))
-                    .setEnergy(csv.getTokAsDouble(7))
-                    .setLoudness(csv.getTokAsDouble(10));
+        CustomWritable outValue = new CustomWritable()
+                .setId(CustomWritable.ANALYSIS_VALUE_1)
+                .setInner(analysisValue);
 
-            CustomWritable outValue = new CustomWritable()
-                    .setId(CustomWritable.ANALYSIS_VALUE_1)
-                    .setInner(analysisValue);
+        context.write(outKey, outValue);
 
-            context.write(outKey, outValue);
 
-        } catch (Exception e) {
-            if(!haveWrote) {
-                haveWrote = true;
-                context.write(
-                        new CustomWritableComparable(
-                                CustomWritableComparable.ERROR_LINE_KEY,
-                                byteOffset),
-                        new CustomWritable(
-                                CustomWritable.TEXT,
-                                new Text(e.getMessage()+" "+value.toString().substring(0, 200))
-                        ));
-            }
-        }
     }
 
 }

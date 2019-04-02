@@ -17,7 +17,7 @@ public class CsvTokenizer {
         return line.substring(desc.start, desc.end);
     }
 
-    public double getTokAsDouble(int idx) throws Exception {
+    public double getTokAsDouble(int idx) {
 
         String tok = getTokAt(idx);
 
@@ -25,11 +25,11 @@ public class CsvTokenizer {
             return 0;
 
         try {
-            double ret = Double.parseDouble(getTokAt(idx));
+            return Double.parseDouble(getTokAt(idx));
 
-            return ret;
         } catch (Exception e) {
-            throw new Exception("error getting double at idx:"+idx);
+            return 0d;
+//            throw new Exception("error getting double at idx:"+idx);
         }
     }
 

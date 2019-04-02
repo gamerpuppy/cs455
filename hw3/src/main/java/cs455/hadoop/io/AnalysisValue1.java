@@ -92,4 +92,14 @@ public class AnalysisValue1 implements Writable {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return hotttnesss+" "
+                +danceability+" "
+                +duration+" "
+                +endFadeIn+" "
+                +energy+" "
+                +loudness;
+    }
+
 }

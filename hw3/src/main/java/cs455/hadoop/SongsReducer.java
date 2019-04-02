@@ -26,11 +26,15 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
     HashMap<String, ArtistInfo> artistInfoMap = new HashMap<>();
 
     int keyCount = 0;
-    int analysisCounter = 0;
-    int metadataCounter = 0;
+    int completedKeyCount = 0;
+
+    HashMap<String, AnalysisValue1> analysisMap = new HashMap<>();
+    HashMap<String, MetadataValue1> metaDataMap = new HashMap<>();
 
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
+
+        keyCount++;
 
         if(key.getId() == CustomWritableComparable.ERROR_LINE_KEY) {
             context.write(key, values.iterator().next());
@@ -48,19 +52,17 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
         {
             if(customWritable.getId() == CustomWritable.ANALYSIS_VALUE_1) {
                 analysis = (AnalysisValue1) customWritable.getInner();
-                analysisCounter++;
+                analysisMap.put(key.getInner().toString(), analysis);
 
             } else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1) {
                 metadata = (MetadataValue1) customWritable.getInner();
-                metadataCounter++;
+                metaDataMap.put(key.getInner().toString(), metadata);
 
             }
         }
 
         if(analysis == null || metadata == null)
             return;
-
-        keyCount++;
 
         if(analysis.getHotttnesss() > hotttnessst) {
             hotttnessst = analysis.getHotttnesss();
@@ -91,10 +93,16 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
         }
 
+        completedKeyCount++;
+
     }
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
+
+//        for(String key : analysisMap.keySet()) {
+//            processValuePair(analysisMap.get(key), metaDataMap.get(key));
+//        }
 
         String mostSongsArtist = "";
         int mostSongs = 0;
@@ -192,7 +200,7 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                         .setInner(new Text("number of analysis values")),
                 new CustomWritable()
                         .setId(CustomWritable.INT)
-                        .setInner(new IntWritable(analysisCounter))
+                        .setInner(new IntWritable(analysisMap.size()))
         );
 
         context.write(
@@ -201,7 +209,7 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                         .setInner(new Text("number of metadata values")),
                 new CustomWritable()
                         .setId(CustomWritable.INT)
-                        .setInner(new IntWritable(metadataCounter))
+                        .setInner(new IntWritable(metaDataMap.size()))
         );
 
         context.write(
@@ -210,8 +218,18 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                         .setInner(new Text("number of keys that had both values")),
                 new CustomWritable()
                         .setId(CustomWritable.INT)
+                        .setInner(new IntWritable(completedKeyCount))
+        );
+
+        context.write(
+                new CustomWritableComparable()
+                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setInner(new Text("number of keys")),
+                new CustomWritable()
+                        .setId(CustomWritable.INT)
                         .setInner(new IntWritable(keyCount))
         );
+
 
     }
 

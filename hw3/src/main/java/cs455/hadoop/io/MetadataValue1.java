@@ -56,4 +56,9 @@ public class MetadataValue1 implements Writable {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return artistId+" "+artistName+" "+title;
+    }
+
 }
