@@ -23,12 +23,9 @@ public class SongsReducer2 extends Reducer<CustomWritableComparable, CustomWrita
 
         for(CustomWritable value : values) {
             context.write (
-                    new CustomWritableComparable()
-                            .setId(CustomWritableComparable.DEBUG_KEY)
-                            .setInner(key.getInner()),
+                    key,
                     value
             );
-
         }
 
 

@@ -1,9 +1,6 @@
 package cs455.hadoop.io;
 
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -26,11 +23,11 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
     public static final int DEBUG_KEY = -1;
 
     private IntWritable id = new IntWritable();
-    private WritableComparable inner = null;
+    private Text inner = new Text();
 
     public CustomWritableComparable() { }
 
-    public CustomWritableComparable(int id, WritableComparable inner) {
+    public CustomWritableComparable(int id, Text inner) {
         this.id.set(id);
         this.inner = inner;
     }
@@ -39,7 +36,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
         return id.get();
     }
 
-    public WritableComparable getInner() {
+    public Text getInner() {
         return inner;
     }
 
@@ -48,7 +45,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
         return this;
     }
 
-    public CustomWritableComparable setInner(WritableComparable inner) {
+    public CustomWritableComparable setInner(Text inner) {
         this.inner = inner;
         return this;
     }
@@ -57,8 +54,9 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
     public int compareTo(CustomWritableComparable o) {
         int cmp = Integer.compare(id.get(), o.id.get());
 
-        if(cmp == 0)
+        if(cmp == 0) {
             return inner.compareTo(o.inner);
+        }
         else
             return cmp;
     }
@@ -69,7 +67,6 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
             return false;
 
         CustomWritableComparable cw = (CustomWritableComparable) o;
-
         if(id != cw.id)
             return false;
         if(inner == null && cw.inner == null)
@@ -96,7 +93,6 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
     @Override
     public void readFields(DataInput in) throws IOException {
         id.readFields(in);
-        inner = getInnerInstance(id.get());
         inner.readFields(in);
     }
 
@@ -105,24 +101,6 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
         return id.get()+":"+inner.toString();
     }
 
-    private static WritableComparable getInnerInstance(int id) {
-        switch(id) {
-            case ANALYSIS_KEY_1:
-            case METADATA_KEY_1:
-            case MOSTSONGS_OUT_KEY:
-            case HOTTTNESSS_OUT_KEY:
-            case LOUDEST_OUT_KEY:
-            case MOSTFADE_OUT_KEY:
-            case LONGEST_OUT_KEY:
-            case SHORTEST_OUT_KEY:
-            case DEBUG_KEY:
-                return new Text();
 
-            case ERROR_LINE_KEY:
-                return new LongWritable();
-
-            default: return new IntWritable(-1);
-        }
-    }
 
 }

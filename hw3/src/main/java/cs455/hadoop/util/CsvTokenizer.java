@@ -35,23 +35,20 @@ public class CsvTokenizer {
 
     private void generateIndices() {
         int start = 0;
-        int parenCount = 0;
+        boolean inQuote = false;
 
         for(int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
 
             switch (c) {
                     case ',':
-                        if(parenCount == 0) {
+                        if(!inQuote) {
                             tokenDescs.add(new TokenDesc(start, i));
                             start = i+1;
                         }
                         break;
-                    case ')':
-                        parenCount--;
-                        break;
-                    case '(':
-                        parenCount++;
+                    case '\"':
+                        inQuote = !inQuote;
                         break;
             }
 

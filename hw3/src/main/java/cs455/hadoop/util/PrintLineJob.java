@@ -43,7 +43,7 @@ class PrintLineMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     protected void map(LongWritable byteOffset, Text value, Mapper.Context context) throws IOException, InterruptedException {
 
-        String seq = "'SOJKTJG12AB0182516'";
+        String seq = "b'ARN80361187FB36732'";
 
         if(value.toString().contains(seq))
             context.write(new Text(seq), value);

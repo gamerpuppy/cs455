@@ -8,6 +8,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
@@ -35,6 +37,17 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
                 .setInner(metadataValue1);
 
         context.write(outKey, outValue);
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        BufferedReader reader = new BufferedReader(new FileReader("./testfiles/metadata1.csv"));
+        MetadataMapper mapper = new MetadataMapper();
+
+        String line;
+        while((line = reader.readLine()) != null) {
+            mapper.map(new LongWritable(0), new Text(line), null);
+        }
+
     }
 
 }
