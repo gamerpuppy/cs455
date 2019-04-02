@@ -25,6 +25,10 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
     HashMap<String, ArtistInfo> artistInfoMap = new HashMap<>();
 
+    int keyCount = 0;
+    int analysisCounter = 0;
+    int metadataCounter = 0;
+
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
 
@@ -42,15 +46,21 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
         for(CustomWritable customWritable : values)
         {
-            if(customWritable.getId() == CustomWritable.ANALYSIS_VALUE_1)
+            if(customWritable.getId() == CustomWritable.ANALYSIS_VALUE_1) {
                 analysis = (AnalysisValue1) customWritable.getInner();
+                analysisCounter++;
 
-            else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1)
+            } else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1) {
                 metadata = (MetadataValue1) customWritable.getInner();
+                metadataCounter++;
+
+            }
         }
 
         if(analysis == null || metadata == null)
             return;
+
+        keyCount++;
 
         if(analysis.getHotttnesss() > hotttnessst) {
             hotttnessst = analysis.getHotttnesss();
@@ -174,6 +184,33 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
                         .setInner(new DoubleWritable(shortest))
+        );
+
+        context.write(
+                new CustomWritableComparable()
+                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setInner(new Text("number of analysis values")),
+                new CustomWritable()
+                        .setId(CustomWritable.INT)
+                        .setInner(new IntWritable(analysisCounter))
+        );
+
+        context.write(
+                new CustomWritableComparable()
+                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setInner(new Text("number of metadata values")),
+                new CustomWritable()
+                        .setId(CustomWritable.INT)
+                        .setInner(new IntWritable(metadataCounter))
+        );
+
+        context.write(
+                new CustomWritableComparable()
+                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setInner(new Text("number of keys that had both values")),
+                new CustomWritable()
+                        .setId(CustomWritable.INT)
+                        .setInner(new IntWritable(keyCount))
         );
 
     }
