@@ -12,13 +12,12 @@ import java.io.IOException;
 
 public class AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
-    boolean haveWrote = false;
-
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
-        // Should exclude header lines
-//        if(value.charAt(0) != '0')
-//            return;
+//         Should exclude header lines
+        if(byteOffset.get() == 0)
+            return;
+
         CsvTokenizer csv = new CsvTokenizer(value.toString());
         String songId = csv.getTokAt(1);
 
@@ -39,8 +38,6 @@ public class AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableCom
                 .setInner(analysisValue);
 
         context.write(outKey, outValue);
-
-
     }
 
 }

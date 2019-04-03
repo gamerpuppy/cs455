@@ -1,13 +1,12 @@
-package cs455.hadoop;
+package cs455.hadoop.testutil;
 
+import cs455.hadoop.MetadataMapper;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 

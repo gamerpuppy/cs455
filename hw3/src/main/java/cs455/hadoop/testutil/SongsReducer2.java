@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.testutil;
 
 import cs455.hadoop.io.AnalysisValue1;
 import cs455.hadoop.io.CustomWritable;

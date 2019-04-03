@@ -10,6 +10,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritable, CustomWritableComparable, CustomWritable> {
@@ -28,8 +29,7 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
     int keyCount = 0;
     int completedKeyCount = 0;
 
-    HashMap<String, AnalysisValue1> analysisMap = new HashMap<>();
-    HashMap<String, MetadataValue1> metaDataMap = new HashMap<>();
+    ArrayList<SongInfo> songs = new ArrayList<>();
 
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
@@ -50,15 +50,12 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
         for(CustomWritable customWritable : values)
         {
-            if(customWritable.getId() == CustomWritable.ANALYSIS_VALUE_1) {
+            if(customWritable.getId() == CustomWritable.ANALYSIS_VALUE_1)
                 analysis = (AnalysisValue1) customWritable.getInner();
-                analysisMap.put(key.getInner().toString(), analysis);
 
-            } else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1) {
+            else if(customWritable.getId() == CustomWritable.METADATA_VALUE_1)
                 metadata = (MetadataValue1) customWritable.getInner();
-                metaDataMap.put(key.getInner().toString(), metadata);
 
-            }
         }
 
         if(analysis == null || metadata == null)
@@ -79,30 +76,26 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
             shortestTitle = metadata.getTitle();
         }
 
+        SongInfo songInfo = new SongInfo(metadata.getTitle(), analysis.getEnergy(), analysis.getDanceability());
+        songs.add(songInfo);
+
         if(artistInfoMap.containsKey(metadata.getArtistId())) {
             ArtistInfo info = artistInfoMap.get(metadata.getArtistId());
             info.fadeSum += analysis.getEndFadeIn();
             info.loudSum += analysis.getLoudness();
             info.songCount++;
-
         } else {
             artistInfoMap.put(
                     metadata.getArtistId(),
                     new ArtistInfo(metadata.getArtistName(), analysis.getEndFadeIn(), analysis.getLoudness(), 1)
             );
-
         }
 
         completedKeyCount++;
-
     }
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
-
-//        for(String key : analysisMap.keySet()) {
-//            processValuePair(analysisMap.get(key), metaDataMap.get(key));
-//        }
 
         String mostSongsArtist = "";
         int mostSongs = 0;
@@ -194,31 +187,34 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                         .setInner(new DoubleWritable(shortest))
         );
 
-        context.write(
-                new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
-                        .setInner(new Text("number of analysis values")),
-                new CustomWritable()
-                        .setId(CustomWritable.INT)
-                        .setInner(new IntWritable(analysisMap.size()))
-        );
+        // Question 6 top 10 energy
+
+        StringBuilder energyTop10 = new StringBuilder();
+        songs.sort((o1, o2) -> Double.compare(o1.energy, o2.energy));
+        for(int i = 0; i < 10; i++)
+            energyTop10.append((i+1)+": "+songs.get(i).songName+" "+songs.get(i).energy);
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
-                        .setInner(new Text("number of metadata values")),
+                        .setId(CustomWritableComparable.ENERGY_OUT_KEY),
                 new CustomWritable()
-                        .setId(CustomWritable.INT)
-                        .setInner(new IntWritable(metaDataMap.size()))
+                        .setId(CustomWritable.TEXT)
+                        .setInner(new Text(energyTop10.toString()))
         );
+
+        // Question 6 top 10 danceability
+
+        StringBuilder dancyTop10 = new StringBuilder();
+        songs.sort((o1, o2) -> Double.compare(o1.danceability, o2.danceability));
+        for(int i = 0; i < 10; i++)
+            dancyTop10.append((i+1)+": "+songs.get(i).songName+" "+songs.get(i).danceability);
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
-                        .setInner(new Text("number of keys that had both values")),
+                        .setId(CustomWritableComparable.DANCY_OUT_KEY),
                 new CustomWritable()
-                        .setId(CustomWritable.INT)
-                        .setInner(new IntWritable(completedKeyCount))
+                        .setId(CustomWritable.TEXT)
+                        .setInner(new Text(dancyTop10.toString()))
         );
 
         context.write(
@@ -230,11 +226,18 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
                         .setInner(new IntWritable(keyCount))
         );
 
+        context.write(
+                new CustomWritableComparable()
+                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setInner(new Text("number of keys that had both values")),
+                new CustomWritable()
+                        .setId(CustomWritable.INT)
+                        .setInner(new IntWritable(completedKeyCount))
+        );
 
     }
 
     private static class ArtistInfo {
-
         String artistName;
         double fadeSum;
         double loudSum;
@@ -246,7 +249,22 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
             this.loudSum = loudSum;
             this.songCount = songCount;
         }
+    }
+
+    private static class SongInfo {
+        String songName;
+        double energy;
+        double danceability;
+
+        public SongInfo(String songName, double energy, double danceability) {
+            this.songName = songName;
+            this.energy = energy;
+            this.danceability = danceability;
+        }
 
     }
+
+
+
 
 }

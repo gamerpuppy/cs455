@@ -18,7 +18,7 @@ public class SongsJob {
 
             Job job = Job.getInstance(conf, "songs job");
             job.setJarByClass(SongsJob.class);
-            job.setReducerClass(SongsReducer2.class);
+            job.setReducerClass(SongsReducer.class);
 
             job.setMapOutputKeyClass(CustomWritableComparable.class);
             job.setMapOutputValueClass(CustomWritable.class);
@@ -27,12 +27,12 @@ public class SongsJob {
             job.setOutputValueClass(CustomWritable.class);
 
             MultipleInputs.addInputPath(job,
-                    new Path("/data/metadata/metadata1.csv"),
+                    new Path("/data/metadata/"),
                     TextInputFormat.class,
                     MetadataMapper.class);
 
             MultipleInputs.addInputPath(job,
-                    new Path("/data/analysis/analysis1.csv"),
+                    new Path("/data/analysis/"),
                     TextInputFormat.class,
                     AnalysisMapper.class);
 
@@ -45,6 +45,5 @@ public class SongsJob {
 
         }
     }
-
 
 }

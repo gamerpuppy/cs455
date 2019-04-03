@@ -16,9 +16,9 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
-//         Should exclude header lines
-//        if(value.charAt(0) != '0')
-//            return;
+        //         Should exclude header lines
+        if(byteOffset.get() == 0)
+            return;
 
         CsvTokenizer csv = new CsvTokenizer(value.toString());
         String songId = csv.getTokAt(8);
