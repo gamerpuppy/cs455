@@ -62,7 +62,6 @@ public class CustomWritable implements Writable {
         return id.get()+":"+inner.toString();
     }
 
-
     private static Writable getInnerInstance(int id) {
         switch(id) {
             case TEXT: return new Text();

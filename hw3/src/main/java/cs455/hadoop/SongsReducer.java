@@ -11,6 +11,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritable, CustomWritableComparable, CustomWritable> {
@@ -29,7 +30,8 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
     int keyCount = 0;
     int completedKeyCount = 0;
 
-    ArrayList<SongInfo> songs = new ArrayList<>();
+    TopList<SongInfo> energyTop = new TopList<>(10);
+    TopList<SongInfo> dancyTop = new TopList<>(10);
 
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
@@ -77,7 +79,8 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
         }
 
         SongInfo songInfo = new SongInfo(metadata.getTitle(), analysis.getEnergy(), analysis.getDanceability());
-        songs.add(songInfo);
+        energyTop.addIfTop(songInfo, SongInfo.energyCmp);
+        dancyTop.addIfTop(songInfo, SongInfo.dancyCmp);
 
         if(artistInfoMap.containsKey(metadata.getArtistId())) {
             ArtistInfo info = artistInfoMap.get(metadata.getArtistId());
@@ -190,9 +193,11 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 6 top 10 energy
 
         StringBuilder energyTop10 = new StringBuilder();
-        songs.sort((o1, o2) -> Double.compare(o1.energy, o2.energy));
-        for(int i = 0; i < 10; i++)
-            energyTop10.append((i+1)+": "+songs.get(i).songName+" "+songs.get(i).energy);
+        int idx = 1;
+        energyTop10.append('\n');
+        for(SongInfo info : energyTop.topList) {
+            energyTop10.append(idx++ +": "+info.songName+" "+String.format("%.3f\n", info.energy));
+        }
 
         context.write(
                 new CustomWritableComparable()
@@ -205,9 +210,11 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 6 top 10 danceability
 
         StringBuilder dancyTop10 = new StringBuilder();
-        songs.sort((o1, o2) -> Double.compare(o1.danceability, o2.danceability));
-        for(int i = 0; i < 10; i++)
-            dancyTop10.append((i+1)+": "+songs.get(i).songName+" "+songs.get(i).danceability);
+        idx = 1;
+        energyTop10.append('\n');
+        for(SongInfo info : dancyTop.topList) {
+            dancyTop10.append(idx+": "+info.songName+" "+String.format("%.3f\n", info.danceability));
+        }
 
         context.write(
                 new CustomWritableComparable()
@@ -262,9 +269,47 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
             this.danceability = danceability;
         }
 
+        static final Comparator<SongInfo> energyCmp = new Comparator<SongInfo>() {
+            @Override
+            public int compare(SongInfo o1, SongInfo o2) {
+                return Double.compare(o1.energy, o2.energy);
+            }
+        };
+
+        static final Comparator<SongInfo> dancyCmp = new Comparator<SongInfo>() {
+            @Override
+            public int compare(SongInfo o1, SongInfo o2) {
+                return Double.compare(o1.danceability, o2.danceability);
+            }
+        };
+
     }
 
+    // do not use topCount of 0
+    private static class TopList<T> {
+        ArrayList<T> topList = new ArrayList<>();
+        final int topCount;
 
+        TopList(int topCount) {
+            this.topCount = topCount;
+        }
 
+        void addIfTop(T obj, Comparator<T> cmp) {
+            int i = topList.size();
+
+            for(; i > 0; i--) {
+                if(cmp.compare(topList.get(i-1), obj) < 0) {
+                    break;
+                }
+            }
+
+            if(i < topList.size() || i == 0) {
+                if (topList.size() >= topCount)
+                    topList.remove(topList.size()-1);
+
+                topList.add(i, obj);
+            }
+        }
+    }
 
 }
