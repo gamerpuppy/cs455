@@ -1,9 +1,9 @@
 package cs455.hadoop.io;
 
 import org.apache.hadoop.io.ArrayWritable;
-import org.apache.hadoop.io.Writable;
 
 public class SegmentArrayWritable extends ArrayWritable {
+
     public SegmentArrayWritable() {
         super(Segment.class);
     }
@@ -16,4 +16,5 @@ public class SegmentArrayWritable extends ArrayWritable {
     public Segment[] toArray() {
         return (Segment[])super.toArray();
     }
+
 }

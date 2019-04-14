@@ -51,18 +51,21 @@ public class Segment implements Writable {
         startLoudness += o.startLoudness;
     }
 
-    public void average() {
-        start /= samples;
-        pitch /= samples;
-        timbre /= samples;
-        maxLoudness /= samples;
-        maxLoudnessTime /= samples;
-        startLoudness /= samples;
-        samples = 1;
+    public Segment average() {
+        Segment ret = new Segment();
+        ret.samples = samples;
+        ret.start = start/samples;
+        ret.pitch = pitch/samples;
+        ret.timbre = timbre/samples;
+        ret.maxLoudness = maxLoudness/samples;
+        ret.maxLoudnessTime = maxLoudnessTime/samples;
+        ret.startLoudness = startLoudness/samples;
+        return ret;
     }
 
     @Override
     public String toString() {
         return String.format("%.2f %.2f %.2f %.2f %.2f %.2f", start, pitch, timbre, maxLoudness, maxLoudnessTime, startLoudness);
     }
+
 }

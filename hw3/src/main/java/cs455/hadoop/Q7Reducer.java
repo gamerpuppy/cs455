@@ -22,17 +22,31 @@ public class Q7Reducer extends Reducer<IntWritable, SegmentArrayWritable, Text, 
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
-
-        StringBuilder segmentDataSb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        sb.append("samples,start,pitch,timbre,maxLoudness,maxLoudnessTime,startLoudness\n");
         for (Segment segment: segmentList) {
-            segment.average();
-            segmentDataSb.append(segment);
-            segmentDataSb.append(',');
+            Segment avg = segment.average();
+            sb.append(avg.samples);
+            sb.append(",");
+            sb.append(avg.start);
+            sb.append(",");
+            sb.append(avg.pitch);
+            sb.append(",");
+            sb.append(avg.timbre);
+            sb.append(",");
+            sb.append(avg.maxLoudness);
+            sb.append(",");
+            sb.append(avg.maxLoudnessTime);
+            sb.append(",");
+            sb.append(avg.startLoudness);
+            sb.append('\n');
         }
+
         context.write(
-                new Text( "Q7: Segment Data. segments are seperated by commas and the values start time," +
-                        " pitch, timbre, max loudness, max loudness time and start loudness are seperated by spaces."),
-                new Text(segmentDataSb.toString()));
+//                new Text( "Q7: Segment Data. segments are seperated by commas and the values start time," +
+//                        " pitch, timbre, max loudness, max loudness time and start loudness are seperated by spaces."),
+                new Text(),
+                new Text(sb.toString()));
     }
 
 }
