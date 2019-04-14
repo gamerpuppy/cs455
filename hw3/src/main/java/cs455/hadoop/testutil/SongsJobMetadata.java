@@ -1,6 +1,6 @@
 package cs455.hadoop.testutil;
 
-import cs455.hadoop.MetadataMapper;
+import cs455.hadoop.Part1MetadataMapper;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import org.apache.hadoop.conf.Configuration;
@@ -18,7 +18,7 @@ public class SongsJobMetadata {
 
             Job job = Job.getInstance(conf, "songs job metadata");
             job.setJarByClass(SongsJobMetadata.class);
-            job.setMapperClass(MetadataMapper.class);
+            job.setMapperClass(Part1MetadataMapper.class);
 
             job.setMapOutputKeyClass(CustomWritableComparable.class);
             job.setMapOutputValueClass(CustomWritable.class);

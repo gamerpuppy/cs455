@@ -10,7 +10,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
+public class Part1AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {

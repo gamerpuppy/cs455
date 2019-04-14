@@ -12,7 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
+public class Part1MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
@@ -41,7 +41,7 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
 
     public static void main(String[] args) throws IOException, InterruptedException {
         BufferedReader reader = new BufferedReader(new FileReader("./testfiles/metadata1.csv"));
-        MetadataMapper mapper = new MetadataMapper();
+        Part1MetadataMapper mapper = new Part1MetadataMapper();
 
         String line;
         while((line = reader.readLine()) != null) {

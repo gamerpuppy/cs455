@@ -54,7 +54,7 @@ class MetadataMapper extends Mapper<LongWritable, Text, Text, Text> {
 
 }
 
-//class AnalysisMapper extends Mapper<LongWritable, Text, Text, Text> {
+//class Part1AnalysisMapper extends Mapper<LongWritable, Text, Text, Text> {
 //
 //    protected void map(LongWritable byteOffset, Text value, Mapper.Context context) throws IOException, InterruptedException {
 //        if(value.charAt(0) != '0')

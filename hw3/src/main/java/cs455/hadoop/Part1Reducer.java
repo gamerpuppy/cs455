@@ -4,6 +4,7 @@ import cs455.hadoop.io.AnalysisValue1;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import cs455.hadoop.io.MetadataValue1;
+import cs455.hadoop.io.Segment;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 
-public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritable, CustomWritableComparable, CustomWritable> {
+public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritable, CustomWritableComparable, CustomWritable> {
 
     String hotttnessstTitle = "";
     double hotttnessst = Double.MIN_VALUE;
@@ -33,19 +34,16 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
     TopList<SongInfo> energyTop = new TopList<>(10);
     TopList<SongInfo> dancyTop = new TopList<>(10);
 
+    ArrayList<Segment> segmentList = new ArrayList<>();
+
     @Override
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
-
         keyCount++;
 
         if(key.getId() == CustomWritableComparable.ERROR_LINE_KEY) {
             context.write(key, values.iterator().next());
             return;
         }
-
-        // only one key for now
-        if(key.getId() != CustomWritableComparable.SONG_ID_KEY)
-            return;
 
         AnalysisValue1 analysis = null;
         MetadataValue1 metadata = null;
@@ -211,9 +209,9 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
 
         StringBuilder dancyTop10 = new StringBuilder();
         idx = 1;
-        energyTop10.append('\n');
+        dancyTop10.append('\n');
         for(SongInfo info : dancyTop.topList) {
-            dancyTop10.append(idx+": "+info.songName+" "+String.format("%.3f\n", info.danceability));
+            dancyTop10.append(idx++ +": "+info.songName+" "+String.format("%.3f\n", info.danceability));
         }
 
         context.write(
@@ -263,26 +261,14 @@ public class SongsReducer extends Reducer<CustomWritableComparable, CustomWritab
         double energy;
         double danceability;
 
+        static final Comparator<SongInfo> energyCmp = Comparator.comparingDouble(o -> o.energy);
+        static final Comparator<SongInfo> dancyCmp = Comparator.comparingDouble(o -> o.danceability);
+
         public SongInfo(String songName, double energy, double danceability) {
             this.songName = songName;
             this.energy = energy;
             this.danceability = danceability;
         }
-
-        static final Comparator<SongInfo> energyCmp = new Comparator<SongInfo>() {
-            @Override
-            public int compare(SongInfo o1, SongInfo o2) {
-                return Double.compare(o1.energy, o2.energy);
-            }
-        };
-
-        static final Comparator<SongInfo> dancyCmp = new Comparator<SongInfo>() {
-            @Override
-            public int compare(SongInfo o1, SongInfo o2) {
-                return Double.compare(o1.danceability, o2.danceability);
-            }
-        };
-
     }
 
     // do not use topCount of 0
