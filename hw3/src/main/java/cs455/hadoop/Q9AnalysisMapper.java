@@ -47,6 +47,7 @@ public class Q9AnalysisMapper extends Mapper<LongWritable, Text, CustomWritableC
         dwArray[7] = new DoubleWritable(csv.getTokAsDouble(6));
         dwArray[8] = new DoubleWritable(csv.getTokAsDouble(13));
 
+        // Key is string of artist id
         CustomWritableComparable key = new CustomWritableComparable()
                 .setId(CustomWritableComparable.Q9)
                 .setInner(new Text(csv.getTokAt(1)));

@@ -5,6 +5,7 @@ import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import cs455.hadoop.io.MetadataValue1;
 import cs455.hadoop.io.Segment;
+import cs455.hadoop.util.TopList;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -31,8 +32,8 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
     int keyCount = 0;
     int completedKeyCount = 0;
 
-    TopList<SongInfo> energyTop = new TopList<>(10);
-    TopList<SongInfo> dancyTop = new TopList<>(10);
+    TopList<SongInfo> energyTop = new TopList<>(10, SongInfo.energyCmp);
+    TopList<SongInfo> dancyTop = new TopList<>(10, SongInfo.dancyCmp);
 
     ArrayList<Segment> segmentList = new ArrayList<>();
 
@@ -77,8 +78,8 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         }
 
         SongInfo songInfo = new SongInfo(metadata.getTitle(), analysis.getEnergy(), analysis.getDanceability());
-        energyTop.addIfTop(songInfo, SongInfo.energyCmp);
-        dancyTop.addIfTop(songInfo, SongInfo.dancyCmp);
+        energyTop.addIfTop(songInfo);
+        dancyTop.addIfTop(songInfo);
 
         if(artistInfoMap.containsKey(metadata.getArtistId())) {
             ArtistInfo info = artistInfoMap.get(metadata.getArtistId());
@@ -268,33 +269,6 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
             this.songName = songName;
             this.energy = energy;
             this.danceability = danceability;
-        }
-    }
-
-    // do not use topCount of 0
-    private static class TopList<T> {
-        ArrayList<T> topList = new ArrayList<>();
-        final int topCount;
-
-        TopList(int topCount) {
-            this.topCount = topCount;
-        }
-
-        void addIfTop(T obj, Comparator<T> cmp) {
-            int i = topList.size();
-
-            for(; i > 0; i--) {
-                if(cmp.compare(topList.get(i-1), obj) < 0) {
-                    break;
-                }
-            }
-
-            if(i < topList.size() || i == 0) {
-                if (topList.size() >= topCount)
-                    topList.remove(topList.size()-1);
-
-                topList.add(i, obj);
-            }
         }
     }
 

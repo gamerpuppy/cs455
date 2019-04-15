@@ -14,7 +14,7 @@ public class Q8Job {
         try {
             Configuration conf = new Configuration();
 
-            Job job = Job.getInstance(conf, "segments job");
+            Job job = Job.getInstance(conf, "q8 job");
             job.setJarByClass(Q8Job.class);
 
             job.setMapperClass(Q8Mapper.class);
