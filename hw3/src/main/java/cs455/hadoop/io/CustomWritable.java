@@ -15,6 +15,9 @@ public class CustomWritable implements Writable {
     public static final int DOUBLE = 2;
     public static final int METADATA_VALUE_1 = 50;
     public static final int ANALYSIS_VALUE_1 = 123;
+    public static final int DOUBLE_ARRAY = 124;
+    public static final int ARTIST_TERM_ARRAY = 125;
+    public static final int ARTIST = 126;
 
     private IntWritable id = new IntWritable();
     private Writable inner = null;
@@ -63,10 +66,14 @@ public class CustomWritable implements Writable {
     }
 
     private static Writable getInnerInstance(int id) {
-        switch(id) {
+        switch(id)
+        {
             case TEXT: return new Text();
             case METADATA_VALUE_1: return new MetadataValue1();
             case ANALYSIS_VALUE_1: return new AnalysisValue1();
+            case DOUBLE_ARRAY: return new DoubleArrayWritable();
+            case ARTIST_TERM_ARRAY: return new ArtistTermArrayWritable();
+            case ARTIST: return new Artist();
 
             default: return new IntWritable(-1);
         }

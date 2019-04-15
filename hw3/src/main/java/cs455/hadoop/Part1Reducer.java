@@ -40,7 +40,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
     protected void reduce(CustomWritableComparable key, Iterable<CustomWritable> values, Context context) throws IOException, InterruptedException {
         keyCount++;
 
-        if(key.getId() == CustomWritableComparable.ERROR_LINE_KEY) {
+        if(key.getId() == CustomWritableComparable.ERROR_LINE) {
             context.write(key, values.iterator().next());
             return;
         }
@@ -131,7 +131,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 1 most songs
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.MOSTSONGS_OUT_KEY)
+                        .setId(CustomWritableComparable.MOSTSONGS_OUT)
                         .setInner(new Text(mostSongsArtist)),
                 new CustomWritable()
                         .setId(CustomWritable.INT)
@@ -141,7 +141,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 2 loudest
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.LOUDEST_OUT_KEY)
+                        .setId(CustomWritableComparable.LOUDEST_OUT)
                         .setInner(new Text(loudestArtist)),
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
@@ -151,7 +151,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 3 hotttessst
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.HOTTTNESSS_OUT_KEY)
+                        .setId(CustomWritableComparable.HOTTTNESSS)
                         .setInner(new Text(hotttnessstTitle)),
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
@@ -161,7 +161,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 4 fade time
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.MOSTFADE_OUT_KEY)
+                        .setId(CustomWritableComparable.MOSTFADE_OUT)
                         .setInner(new Text(mostFadeArtist)),
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
@@ -171,7 +171,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 5 longest
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.LONGEST_OUT_KEY)
+                        .setId(CustomWritableComparable.LONGEST_OUT)
                         .setInner(new Text(longestTitle)),
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
@@ -181,7 +181,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
         // Question 5 shortest
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.SHORTEST_OUT_KEY)
+                        .setId(CustomWritableComparable.SHORTEST_OUT)
                         .setInner(new Text(shortestTitle)),
                 new CustomWritable()
                         .setId(CustomWritable.DOUBLE)
@@ -199,7 +199,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ENERGY_OUT_KEY),
+                        .setId(CustomWritableComparable.ENERGY_OUT),
                 new CustomWritable()
                         .setId(CustomWritable.TEXT)
                         .setInner(new Text(energyTop10.toString()))
@@ -216,7 +216,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.DANCY_OUT_KEY),
+                        .setId(CustomWritableComparable.DANCY_OUT),
                 new CustomWritable()
                         .setId(CustomWritable.TEXT)
                         .setInner(new Text(dancyTop10.toString()))
@@ -224,7 +224,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setId(CustomWritableComparable.ERROR_LINE)
                         .setInner(new Text("number of keys")),
                 new CustomWritable()
                         .setId(CustomWritable.INT)
@@ -233,7 +233,7 @@ public class Part1Reducer extends Reducer<CustomWritableComparable, CustomWritab
 
         context.write(
                 new CustomWritableComparable()
-                        .setId(CustomWritableComparable.ERROR_LINE_KEY)
+                        .setId(CustomWritableComparable.ERROR_LINE)
                         .setInner(new Text("number of keys that had both values")),
                 new CustomWritable()
                         .setId(CustomWritable.INT)

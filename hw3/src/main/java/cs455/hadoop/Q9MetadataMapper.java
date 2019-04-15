@@ -1,9 +1,10 @@
 package cs455.hadoop;
 
 import cs455.hadoop.io.Artist;
-import cs455.hadoop.util.CsvTokenizer;
 import cs455.hadoop.io.ArtistTerm;
-
+import cs455.hadoop.io.CustomWritable;
+import cs455.hadoop.io.CustomWritableComparable;
+import cs455.hadoop.util.CsvTokenizer;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -13,7 +14,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 
-public class Q8Mapper extends Mapper<LongWritable, Text, Text, Artist> {
+public class Q9MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
     HashSet<String> writtenArtists = new HashSet<>();
 
@@ -31,17 +32,26 @@ public class Q8Mapper extends Mapper<LongWritable, Text, Text, Artist> {
         else
            writtenArtists.add(artistId);
 
-        Artist out = new Artist();
-        out.terms.set(ArtistTerm.getTerms(csv));
-        out.artistName.set(csv.getTokAt(7));
+        Artist artist = new Artist();
+        artist.songTitle.set(csv.getTokAt(9));
+        artist.artistName.set(csv.getTokAt(7));
+        artist.terms.set(ArtistTerm.getTerms(csv));
 
-        context.write(new Text(artistId), out);
+        CustomWritableComparable keyOut = new CustomWritableComparable()
+                .setId(CustomWritableComparable.Q9)
+                .setInner(new Text(csv.getTokAt(8)));
+
+        CustomWritable valueOut = new CustomWritable()
+                .setId(CustomWritable.ARTIST)
+                .setInner(artist);
+
+        context.write(keyOut, valueOut);
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
         BufferedReader reader = new BufferedReader(new FileReader("./testfiles/metadata1.csv"));
 
-        Q8Mapper mapper = new Q8Mapper();
+        Q9MetadataMapper mapper = new Q9MetadataMapper();
         String line;
         int i = 0;
         while((line = reader.readLine()) != null) {

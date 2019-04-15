@@ -22,7 +22,7 @@ public class Part1AnalysisMapper extends Mapper<LongWritable, Text, CustomWritab
         String songId = csv.getTokAt(1);
 
         CustomWritableComparable outKey = new CustomWritableComparable()
-                .setId(CustomWritableComparable.SONG_ID_KEY)
+                .setId(CustomWritableComparable.SONG_ID)
                 .setInner(new Text(songId));
 
         AnalysisValue1 analysisValue = new AnalysisValue1()

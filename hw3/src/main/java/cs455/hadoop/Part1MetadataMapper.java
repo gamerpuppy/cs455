@@ -24,7 +24,7 @@ public class Part1MetadataMapper extends Mapper<LongWritable, Text, CustomWritab
         String songId = csv.getTokAt(8);
 
         CustomWritableComparable outKey = new CustomWritableComparable()
-                .setId(CustomWritableComparable.SONG_ID_KEY)
+                .setId(CustomWritableComparable.SONG_ID)
                 .setInner(new Text(songId));
 
         MetadataValue1 metadataValue1 = new MetadataValue1()
