@@ -16,7 +16,7 @@ public class Part1Job {
         try {
             Configuration conf = new Configuration();
 
-            Job job = Job.getInstance(conf, "songs job");
+            Job job = Job.getInstance(conf, "q1-6");
             job.setJarByClass(Part1Job.class);
             job.setReducerClass(Part1Reducer.class);
 
@@ -25,6 +25,8 @@ public class Part1Job {
 
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(Text.class);
+
+            job.setNumReduceTasks(1);
 
             MultipleInputs.addInputPath(job,
                     new Path("/data/metadata/"),

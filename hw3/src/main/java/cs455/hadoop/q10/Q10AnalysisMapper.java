@@ -16,7 +16,7 @@ import java.io.IOException;
 public class Q10AnalysisMapper extends Mapper<LongWritable, Text, Text, CustomWritable> {
 
     static final String[] arrayValues = {
-            "compressability",
+            "compressibility",
             "duration",
             "key",
             "loudness",
@@ -41,8 +41,8 @@ public class Q10AnalysisMapper extends Mapper<LongWritable, Text, Text, CustomWr
         Text songId = new Text(csv.getTokAt(1));
 
         try {
-            DoubleWritable[] dwArray = new DoubleWritable[] {
-                    new DoubleWritable(getCompressability(bytes)),
+            DoubleWritable[] dwArray = {
+                    new DoubleWritable(getCompressibility(bytes)),
                     new DoubleWritable(csv.getTokAsDouble(5)),
                     new DoubleWritable(csv.getTokAsDouble(8)),
                     new DoubleWritable(csv.getTokAsDouble(10)),
@@ -53,12 +53,12 @@ public class Q10AnalysisMapper extends Mapper<LongWritable, Text, Text, CustomWr
                     new DoubleWritable(bytes.length)
             };
 
-            context.write(songId, new CustomWritable(CustomWritable.DOUBLE_ARRAY, new DoubleArrayWritable(dwArray)));
+            context.write(songId, new CustomWritable(CustomWritable.Q10_ANALYSIS, new DoubleArrayWritable(dwArray)));
 
         } catch (Exception e) {}
     }
 
-    public double getCompressability(byte[] bytes) throws IOException {
+    public static double getCompressibility(byte[] bytes) throws IOException {
         ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
 
         GzipCompressorOutputStream gzip = new GzipCompressorOutputStream(byteOut);

@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Q10MetadataMapper extends Mapper<LongWritable, Text, Text, CustomWritable> {
 
     static final String[] arrayValues = {
-            "hotttness",
+            "hotttnesss",
             "latitude",
             "longitude",
             "year"
@@ -27,7 +27,7 @@ public class Q10MetadataMapper extends Mapper<LongWritable, Text, Text, CustomWr
 
         CsvTokenizer csv = new CsvTokenizer(value.toString());
 
-        DoubleWritable[] dwArray = new DoubleWritable[] {
+        DoubleWritable[] dwArray = {
                 new DoubleWritable(csv.getTokAsDouble(2)),
                 new DoubleWritable(csv.getTokAsDouble(4)),
                 new DoubleWritable(csv.getTokAsDouble(5)),
@@ -36,7 +36,7 @@ public class Q10MetadataMapper extends Mapper<LongWritable, Text, Text, CustomWr
 
         Text songId = new Text(csv.getTokAt(8));
         CustomWritable valueOut = new CustomWritable()
-                .setId(CustomWritable.DOUBLE_ARRAY)
+                .setId(CustomWritable.Q10_METADATA)
                 .setInner(new DoubleArrayWritable(dwArray));
 
         context.write(songId, valueOut);

@@ -68,17 +68,16 @@ public class Q9Reducer extends Reducer<CustomWritableComparable, CustomWritable,
     protected void cleanup(Context context) throws IOException, InterruptedException {
 
         final double hotttnessTarget = 1.2;
-        context.write(new Text("attribute significance slope intercept prediction"), new Text(String.format("hotttnesssTarget %.1f", hotttnessTarget)));
+        context.write(new Text("attribute significance slope prediction"), new Text(String.format("hotttnesssTarget %.1f", hotttnessTarget)));
 
         for(int i = 1; i < 9; i++)
         {
             SimpleRegression regression = regressions[i];
             double significance = regression.getSignificance();
             double slope = regression.getSlope();
-            double intercept = regression.getIntercept();
-            double predict = intercept + slope*hotttnessTarget;
+            double predict = regression.predict(hotttnessTarget);
 
-            context.write(new Text(Q9AnalysisMapper.arrayValues[i]), new Text(String.format("%.2f %.2f %.2f %.2f", significance,  slope, intercept, predict)));
+            context.write(new Text(Q9AnalysisMapper.arrayValues[i]), new Text(String.format("%.2f %.2f %.2f", significance,  slope, predict)));
         }
 
         TopList<TermRegression> topTerms = new TopList<>(10, Comparator.comparingDouble(o -> o.predict));
@@ -99,27 +98,22 @@ public class Q9Reducer extends Reducer<CustomWritableComparable, CustomWritable,
         }
 
         for (Text term : termRegressions.keySet()) {
-            SimpleRegression regression = termRegressions.get(term);
-            double slope = regression.getSlope();
-            double intercept = regression.getIntercept();
-            double predict = intercept + slope*hotttnessTarget;
-
-            TermRegression tr = new TermRegression(term, predict);
+            TermRegression tr = new TermRegression(term, termRegressions.get(term).predict(hotttnessTarget));
             topTerms.addIfTop(tr);
         }
 
         {
+            double significance = artistNameLength.getSignificance();
             double slope = artistNameLength.getSlope();
-            double intercept = artistNameLength.getIntercept();
-            double predict = intercept + slope*hotttnessTarget;
-            context.write(new Text("Artist Name Length:"), new Text(String.format("%.2f", predict)));
+            double predict = artistNameLength.predict(hotttnessTarget);
+            context.write(new Text("Artist Name Length:"), new Text(String.format("%.2f %.2f %.2f", significance,  slope, predict)));
         }
 
         {
+            double significance = artistNameWords.getSignificance();
             double slope = artistNameWords.getSlope();
-            double intercept = artistNameWords.getIntercept();
-            double predict = intercept + slope*hotttnessTarget;
-            context.write(new Text("Artist Name Words:"), new Text(String.format("%.2f", predict)));
+            double predict = artistNameWords.predict(hotttnessTarget);
+            context.write(new Text("Artist Name Words:"), new Text(String.format("%.2f %.2f %.2f", significance,  slope, predict)));
         }
 
         context.write(new Text("Top Terms:"), new Text("\n"+topTerms.toString()));
