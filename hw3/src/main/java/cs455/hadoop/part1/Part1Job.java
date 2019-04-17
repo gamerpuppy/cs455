@@ -1,9 +1,10 @@
-package cs455.hadoop;
+package cs455.hadoop.part1;
 
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -22,8 +23,8 @@ public class Part1Job {
             job.setMapOutputKeyClass(CustomWritableComparable.class);
             job.setMapOutputValueClass(CustomWritable.class);
 
-            job.setOutputKeyClass(CustomWritableComparable.class);
-            job.setOutputValueClass(CustomWritable.class);
+            job.setOutputKeyClass(Text.class);
+            job.setOutputValueClass(Text.class);
 
             MultipleInputs.addInputPath(job,
                     new Path("/data/metadata/"),

@@ -1,7 +1,5 @@
-package cs455.hadoop;
+package cs455.hadoop.q7;
 
-import cs455.hadoop.io.Segment;
-import cs455.hadoop.io.SegmentArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -26,6 +24,7 @@ public class Q7Reducer extends Reducer<IntWritable, SegmentArrayWritable, Text, 
         sb.append("samples,start,pitch,timbre,maxLoudness,maxLoudnessTime,startLoudness\n");
         for (Segment segment: segmentList) {
             Segment avg = segment.average();
+            sb.append(",");
             sb.append(avg.samples);
             sb.append(",");
             sb.append(avg.start);

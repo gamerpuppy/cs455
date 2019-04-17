@@ -1,4 +1,4 @@
-package cs455.hadoop.io;
+package cs455.hadoop.q7;
 
 import org.apache.hadoop.io.Writable;
 

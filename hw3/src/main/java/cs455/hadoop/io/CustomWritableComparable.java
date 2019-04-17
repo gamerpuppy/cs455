@@ -94,21 +94,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
 
     @Override
     public String toString() {
-        return getMsg(id.get())+":"+inner.toString();
-    }
-
-    private String getMsg(int id) {
-        switch(id) {
-            case MOSTSONGS_OUT: return "Q1: Artist with most songs";
-            case LOUDEST_OUT: return "Q2: Artist with loudest avg";
-            case HOTTTNESSS: return "Q3: Hotttessst song";
-            case MOSTFADE_OUT: return "Q4: Artist with most fade time";
-            case SHORTEST_OUT: return "Q5: Shortest song";
-            case LONGEST_OUT: return "Q5: Longest song";
-            case ENERGY_OUT: return "Q6: Top 10 songs with most energy";
-            case DANCY_OUT: return "Q6: Top 10 songs with most danceability";
-            default: return "key:" + id;
-        }
+        return id.get()+":"+inner.toString();
     }
 
 }

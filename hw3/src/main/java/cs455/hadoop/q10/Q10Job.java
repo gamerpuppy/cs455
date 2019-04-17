@@ -1,31 +1,32 @@
-package cs455.hadoop;
+package cs455.hadoop.q10;
 
-import cs455.hadoop.io.SegmentArrayWritable;
+import cs455.hadoop.io.CustomWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class Q7Job {
+public class Q10Job {
 
     public static void main(String[] args) {
         try {
             Configuration conf = new Configuration();
 
-            Job job = Job.getInstance(conf, "segments job");
-            job.setJarByClass(Q7Job.class);
-            job.setMapperClass(Q7Mapper.class);
-            job.setCombinerClass(Q7Combiner.class);
-            job.setReducerClass(Q7Reducer.class);
+            Job job = Job.getInstance(conf, "q10 job");
+            job.setJarByClass(Q10Job.class);
 
-            job.setMapOutputKeyClass(IntWritable.class);
-            job.setMapOutputValueClass(SegmentArrayWritable.class);
+            job.setMapperClass(Q10AnalysisMapper.class);
+            job.setReducerClass(Q10Reducer.class);
+
+            job.setMapOutputKeyClass(Text.class);
+            job.setMapOutputValueClass(CustomWritable.class);
 
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(Text.class);
+
+            job.setNumReduceTasks(1);
 
             FileInputFormat.addInputPath(job, new Path("/data/analysis/"));
             FileOutputFormat.setOutputPath(job, new Path(args[0]));

@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.q9;
 
 import cs455.hadoop.io.Artist;
 import cs455.hadoop.io.ArtistTerm;
@@ -46,19 +46,6 @@ public class Q9MetadataMapper extends Mapper<LongWritable, Text, CustomWritableC
                 .setInner(artist);
 
         context.write(keyOut, valueOut);
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-        BufferedReader reader = new BufferedReader(new FileReader("./testfiles/metadata1.csv"));
-
-        Q9MetadataMapper mapper = new Q9MetadataMapper();
-        String line;
-        int i = 0;
-        while((line = reader.readLine()) != null) {
-            mapper.map(new LongWritable(i++), new Text(line), null);
-        }
-
-        System.out.println(mapper);
     }
 
 }

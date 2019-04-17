@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.q8;
 
 import cs455.hadoop.io.Artist;
 import cs455.hadoop.io.ArtistTerm;
@@ -48,8 +48,8 @@ public class Q8Reducer extends Reducer<Text, Artist, Text, Text> {
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
-        context.write(new Text("Q8 Most Generic:"), new Text(mostGeneric.artistName.toString()+String.format("%.2f", maxSum)));
-        context.write(new Text("Q8 Most Unique:"), new Text(mostUnique.artistName.toString()+String.format("%.2f", minSum)));
+        context.write(new Text("Question 8: Most generic"), new Text(mostGeneric.artistName.toString()+String.format("%.2f", maxSum)));
+        context.write(new Text("Question 8: Most unique"), new Text(mostUnique.artistName.toString()+String.format("%.2f", minSum)));
     }
 
 }

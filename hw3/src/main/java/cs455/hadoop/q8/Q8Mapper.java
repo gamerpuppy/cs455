@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.q8;
 
 import cs455.hadoop.io.Artist;
 import cs455.hadoop.util.CsvTokenizer;

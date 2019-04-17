@@ -1,6 +1,5 @@
-package cs455.hadoop;
+package cs455.hadoop.part1;
 
-import cs455.hadoop.io.AnalysisValue1;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
 import cs455.hadoop.util.CsvTokenizer;
@@ -25,7 +24,7 @@ public class Part1AnalysisMapper extends Mapper<LongWritable, Text, CustomWritab
                 .setId(CustomWritableComparable.SONG_ID)
                 .setInner(new Text(songId));
 
-        AnalysisValue1 analysisValue = new AnalysisValue1()
+        Part1AnalysisValue analysisValue = new Part1AnalysisValue()
                 .setHotttnesss(csv.getTokAsDouble(2))
                 .setDanceability(csv.getTokAsDouble(4))
                 .setDuration(csv.getTokAsDouble(5))

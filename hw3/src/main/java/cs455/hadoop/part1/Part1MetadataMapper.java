@@ -1,6 +1,5 @@
-package cs455.hadoop;
+package cs455.hadoop.part1;
 
-import cs455.hadoop.io.MetadataValue1;
 import cs455.hadoop.util.CsvTokenizer;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
@@ -27,7 +26,7 @@ public class Part1MetadataMapper extends Mapper<LongWritable, Text, CustomWritab
                 .setId(CustomWritableComparable.SONG_ID)
                 .setInner(new Text(songId));
 
-        MetadataValue1 metadataValue1 = new MetadataValue1()
+        Part1MetadataValue metadataValue1 = new Part1MetadataValue()
                 .setArtistId(csv.getTokAt(3))
                 .setArtistName(csv.getTokAt(7))
                 .setTitle(csv.getTokAt(9));

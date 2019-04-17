@@ -1,7 +1,5 @@
-package cs455.hadoop;
+package cs455.hadoop.q7;
 
-import cs455.hadoop.io.Segment;
-import cs455.hadoop.io.SegmentArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Reducer;
 

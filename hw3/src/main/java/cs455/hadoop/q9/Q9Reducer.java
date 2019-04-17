@@ -1,4 +1,4 @@
-package cs455.hadoop;
+package cs455.hadoop.q9;
 
 import cs455.hadoop.io.*;
 import cs455.hadoop.util.TopList;
@@ -61,11 +61,6 @@ public class Q9Reducer extends Reducer<CustomWritableComparable, CustomWritable,
         artistNameWords.addData(hotttnesss, artistName.split(" ").length);
 
         artistList.add(new ArtistHotttnesss(hotttnesss, terms));
-        /*
-            get all termSet
-            regress on hotttnesss and weight of the term
-            weight is zero if does not contain
-         */
 
     }
 
@@ -73,6 +68,8 @@ public class Q9Reducer extends Reducer<CustomWritableComparable, CustomWritable,
     protected void cleanup(Context context) throws IOException, InterruptedException {
 
         final double hotttnessTarget = 1.2;
+        context.write(new Text("attribute significance slope intercept prediction"), new Text(String.format("hotttnesssTarget %.1f", hotttnessTarget)));
+
         for(int i = 1; i < 9; i++)
         {
             SimpleRegression regression = regressions[i];
@@ -81,7 +78,7 @@ public class Q9Reducer extends Reducer<CustomWritableComparable, CustomWritable,
             double intercept = regression.getIntercept();
             double predict = intercept + slope*hotttnessTarget;
 
-            context.write(new Text(String.valueOf(i)), new Text(String.format("%.2f %.2f %.2f %.2f", significance,  slope, intercept, predict)));
+            context.write(new Text(Q9AnalysisMapper.arrayValues[i]), new Text(String.format("%.2f %.2f %.2f %.2f", significance,  slope, intercept, predict)));
         }
 
         TopList<TermRegression> topTerms = new TopList<>(10, Comparator.comparingDouble(o -> o.predict));

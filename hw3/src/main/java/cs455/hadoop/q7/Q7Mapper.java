@@ -1,8 +1,6 @@
-package cs455.hadoop;
+package cs455.hadoop.q7;
 
-import cs455.hadoop.io.SegmentArrayWritable;
 import cs455.hadoop.util.CsvTokenizer;
-import cs455.hadoop.io.Segment;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;

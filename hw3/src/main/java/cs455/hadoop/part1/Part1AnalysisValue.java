@@ -1,4 +1,4 @@
-package cs455.hadoop.io;
+package cs455.hadoop.part1;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Writable;
@@ -7,7 +7,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class AnalysisValue1 implements Writable {
+public class Part1AnalysisValue implements Writable {
 
     private DoubleWritable hotttnesss = new DoubleWritable();
     private DoubleWritable danceability = new DoubleWritable();
@@ -16,7 +16,7 @@ public class AnalysisValue1 implements Writable {
     private DoubleWritable energy = new DoubleWritable();
     private DoubleWritable loudness = new DoubleWritable();
 
-    public AnalysisValue1(){}
+    public Part1AnalysisValue(){}
 
     @Override
     public void write(DataOutput out) throws IOException {
@@ -62,32 +62,32 @@ public class AnalysisValue1 implements Writable {
         return loudness.get();
     }
 
-    public AnalysisValue1 setHotttnesss(double hotttnesss) {
+    public Part1AnalysisValue setHotttnesss(double hotttnesss) {
         this.hotttnesss.set(hotttnesss);
         return this;
     }
 
-    public AnalysisValue1 setDanceability(double danceability) {
+    public Part1AnalysisValue setDanceability(double danceability) {
         this.danceability.set(danceability);
         return this;
     }
 
-    public AnalysisValue1 setDuration(double duration) {
+    public Part1AnalysisValue setDuration(double duration) {
         this.duration.set(duration);
         return this;
     }
 
-    public AnalysisValue1 setEndFadeIn(double endFadeIn) {
+    public Part1AnalysisValue setEndFadeIn(double endFadeIn) {
         this.endFadeIn.set(endFadeIn);
         return this;
     }
 
-    public AnalysisValue1 setEnergy(double energy) {
+    public Part1AnalysisValue setEnergy(double energy) {
         this.energy.set(energy);
         return this;
     }
 
-    public AnalysisValue1 setLoudness(double loudness) {
+    public Part1AnalysisValue setLoudness(double loudness) {
         this.loudness.set(loudness);
         return this;
     }
