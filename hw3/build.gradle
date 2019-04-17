@@ -16,6 +16,12 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
 }
 
+dependencies {
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
+    compile group: 'org.tukaani', name: 'xz', version: '1.8'
+}
+
+
 jar {
     from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
 }

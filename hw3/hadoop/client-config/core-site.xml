@@ -14,11 +14,11 @@
     </property>
     <property>
         <name>fs.viewfs.mounttable.default.link./home</name>
-        <value>hdfs://augusta:56784</value>
+        <value>hdfs://austin:5678</value>
     </property>
     <property>
         <name>fs.viewfs.mounttable.default.link./tmp</name>
-        <value>hdfs://augusta:56785/tmp</value>
+        <value>hdfs://austin:5678/tmp</value>
     </property>
     <property>
         <name>fs.viewfs.mounttable.default.link./data</name>
