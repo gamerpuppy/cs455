@@ -1,6 +1,5 @@
-package cs455.hadoop;
+package cs455.hadoop.part1;
 
-import cs455.hadoop.io.MetadataValue1;
 import cs455.hadoop.util.CsvTokenizer;
 import cs455.hadoop.io.CustomWritable;
 import cs455.hadoop.io.CustomWritableComparable;
@@ -12,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
+public class Part1MetadataMapper extends Mapper<LongWritable, Text, CustomWritableComparable, CustomWritable> {
 
     protected void map(LongWritable byteOffset, Text value, Context context) throws IOException, InterruptedException
     {
@@ -24,10 +23,10 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
         String songId = csv.getTokAt(8);
 
         CustomWritableComparable outKey = new CustomWritableComparable()
-                .setId(CustomWritableComparable.SONG_ID_KEY)
+                .setId(CustomWritableComparable.SONG_ID)
                 .setInner(new Text(songId));
 
-        MetadataValue1 metadataValue1 = new MetadataValue1()
+        Part1MetadataValue metadataValue1 = new Part1MetadataValue()
                 .setArtistId(csv.getTokAt(3))
                 .setArtistName(csv.getTokAt(7))
                 .setTitle(csv.getTokAt(9));
@@ -41,7 +40,7 @@ public class MetadataMapper extends Mapper<LongWritable, Text, CustomWritableCom
 
     public static void main(String[] args) throws IOException, InterruptedException {
         BufferedReader reader = new BufferedReader(new FileReader("./testfiles/metadata1.csv"));
-        MetadataMapper mapper = new MetadataMapper();
+        Part1MetadataMapper mapper = new Part1MetadataMapper();
 
         String line;
         while((line = reader.readLine()) != null) {

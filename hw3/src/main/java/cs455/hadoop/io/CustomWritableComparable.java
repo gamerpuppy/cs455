@@ -8,19 +8,21 @@ import java.io.IOException;
 
 public class CustomWritableComparable implements WritableComparable<CustomWritableComparable> {
 
-    public static final int SONG_ID_KEY = 513;
+    public static final int SONG_ID = 513;
 
-    public static final int MOSTSONGS_OUT_KEY = 1;
-    public static final int LOUDEST_OUT_KEY = 2;
-    public static final int HOTTTNESSS_OUT_KEY = 3;
-    public static final int MOSTFADE_OUT_KEY = 4;
-    public static final int SHORTEST_OUT_KEY = 51;
-    public static final int LONGEST_OUT_KEY = 52;
-    public static final int ENERGY_OUT_KEY = 61;
-    public static final int DANCY_OUT_KEY = 62;
+    public static final int MOSTSONGS_OUT = 1;
+    public static final int LOUDEST_OUT = 2;
+    public static final int HOTTTNESSS = 3;
+    public static final int MOSTFADE_OUT = 4;
+    public static final int SHORTEST_OUT = 51;
+    public static final int LONGEST_OUT = 52;
+    public static final int ENERGY_OUT = 61;
+    public static final int DANCY_OUT = 62;
 
-    public static final int ERROR_LINE_KEY = 66;
-    public static final int DEBUG_KEY = -1;
+    public static final int Q9 = 25;
+
+    public static final int ERROR_LINE = 66;
+    public static final int DEBUG = -1;
 
     private IntWritable id = new IntWritable();
     private Text inner = new Text();
@@ -92,21 +94,7 @@ public class CustomWritableComparable implements WritableComparable<CustomWritab
 
     @Override
     public String toString() {
-        return getMsg(id.get())+":"+inner.toString();
-    }
-
-    private String getMsg(int id) {
-        switch(id) {
-            case MOSTSONGS_OUT_KEY: return "Q1: Artist with most songs";
-            case LOUDEST_OUT_KEY: return "Q2: Artist with loudest avg";
-            case HOTTTNESSS_OUT_KEY: return "Q3: Hotttessst song";
-            case MOSTFADE_OUT_KEY: return "Q4: Artist with most fade time";
-            case SHORTEST_OUT_KEY: return "Q5: Shortest song";
-            case LONGEST_OUT_KEY: return "Q5: Longest song";
-            case ENERGY_OUT_KEY: return "Q6: Top 10 songs with most energy";
-            case DANCY_OUT_KEY: return "Q6: Top 10 songs with most danceability";
-            default: return "key:" + id;
-        }
+        return id.get()+":"+inner.toString();
     }
 
 }

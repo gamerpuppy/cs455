@@ -1,5 +1,7 @@
 package cs455.hadoop.io;
 
+import cs455.hadoop.part1.Part1AnalysisValue;
+import cs455.hadoop.part1.Part1MetadataValue;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -15,6 +17,11 @@ public class CustomWritable implements Writable {
     public static final int DOUBLE = 2;
     public static final int METADATA_VALUE_1 = 50;
     public static final int ANALYSIS_VALUE_1 = 123;
+    public static final int DOUBLE_ARRAY = 124;
+    public static final int ARTIST_TERM_ARRAY = 125;
+    public static final int ARTIST = 126;
+    public static final int Q10_ANALYSIS = 213;
+    public static final int Q10_METADATA = 214;
 
     private IntWritable id = new IntWritable();
     private Writable inner = null;
@@ -62,12 +69,17 @@ public class CustomWritable implements Writable {
         return id.get()+":"+inner.toString();
     }
 
-
     private static Writable getInnerInstance(int id) {
-        switch(id) {
+        switch(id)
+        {
             case TEXT: return new Text();
-            case METADATA_VALUE_1: return new MetadataValue1();
-            case ANALYSIS_VALUE_1: return new AnalysisValue1();
+            case METADATA_VALUE_1: return new Part1MetadataValue();
+            case ANALYSIS_VALUE_1: return new Part1AnalysisValue();
+            case ARTIST_TERM_ARRAY: return new ArtistTermArrayWritable();
+            case ARTIST: return new Artist();
+            case Q10_ANALYSIS:
+            case Q10_METADATA:
+            case DOUBLE_ARRAY: return new DoubleArrayWritable();
 
             default: return new IntWritable(-1);
         }

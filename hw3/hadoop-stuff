@@ -7,11 +7,10 @@ http://austin:5679
 yarn web app
 http://annapolis:5684
 
-
 shared name node address
 hdfs://augusta:56780
 
 hw3jar
 /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar
 
-hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.SongsJob /cs455/outfile1
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.part1.Part1Job /cs455/testfile

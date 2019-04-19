@@ -1,4 +1,4 @@
-package cs455.hadoop.io;
+package cs455.hadoop.part1;
 
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -7,13 +7,13 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class MetadataValue1 implements Writable {
+public class Part1MetadataValue implements Writable {
 
     private Text artistId = new Text();
     private Text artistName = new Text();
     private Text title = new Text();
 
-    public MetadataValue1(){}
+    public Part1MetadataValue(){}
 
     @Override
     public void write(DataOutput out) throws IOException {
@@ -33,7 +33,7 @@ public class MetadataValue1 implements Writable {
         return artistId.toString();
     }
 
-    public MetadataValue1 setArtistId(String artistId) {
+    public Part1MetadataValue setArtistId(String artistId) {
         this.artistId.set(artistId);
         return this;
     }
@@ -42,7 +42,7 @@ public class MetadataValue1 implements Writable {
         return artistName.toString();
     }
 
-    public MetadataValue1 setArtistName(String artistName) {
+    public Part1MetadataValue setArtistName(String artistName) {
         this.artistName.set(artistName);
         return this;
     }
@@ -51,7 +51,7 @@ public class MetadataValue1 implements Writable {
         return title.toString();
     }
 
-    public MetadataValue1 setTitle(String title) {
+    public Part1MetadataValue setTitle(String title) {
         this.title.set(title);
         return this;
     }
