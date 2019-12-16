@@ -13,4 +13,9 @@ hdfs://augusta:56780
 hw3jar
 /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar
 
-hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.part1.Part1Job /cs455/testfile
+HADOOP_CONF_DIR=/s/bach/e/under/millardk/cs455/hw3/hadoop/client-config/
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.part1.Part1Job /home/out/part1job
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.q7.Q7Job /home/out/q7job
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.q8.Q8Job /home/out/q8job
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.q9.Q9Job /home/out/q9job
+hadoop jar /s/bach/e/under/millardk/cs455/hw3/build/libs/hw3.jar cs455.hadoop.q10.Q10Job /home/out/q10job

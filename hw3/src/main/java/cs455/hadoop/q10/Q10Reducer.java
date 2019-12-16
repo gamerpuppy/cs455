@@ -41,7 +41,7 @@ public class Q10Reducer extends Reducer<Text, CustomWritable, Text, Text> {
 
         }
 
-        if(analysisValues == null)
+        if(analysisValues == null) b
             return;
 
         double compressibility = analysisValues[0].get();

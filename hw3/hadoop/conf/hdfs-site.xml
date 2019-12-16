@@ -34,10 +34,16 @@
   </property>
   
   <property>
-        <name>dfs.namenode.secondary.http-address</name>
-        <value>cheyenne:5683</value>
-        <description>Web UI of the secondary name node</description>
+	<name>dfs.namenode.secondary.http-address</name>
+	<value>cheyenne:5683</value>
+	<description>Web UI of the secondary name node</description>
   </property>
+  
+  <property>
+	<name>dfs.permissions.enabled</name>
+	<value>false</value>
+  </property>
+  
 </configuration>
 
 

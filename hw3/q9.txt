@@ -1,0 +1,24 @@
+attribute significance slope prediction	hotttnesssTarget 1.2
+tempo	0.00 7.20 130.87
+time signature	0.78 0.02 3.63
+duration	0.05 -11.74 238.17
+mode	0.66 0.01 0.67
+key	0.43 -0.13 5.21
+loudness	0.00 2.74 -7.20
+fadein	0.34 0.09 0.90
+fadeout	0.03 -12.60 228.46
+Artist Name Length:	0.00 -2.23 14.69
+Artist Name Words:	0.00 -0.32 1.94
+Top Terms:	
+1: rock 0.57
+2: metal 0.49
+3: pop 0.41
+4: indie 0.35
+5: alternative 0.34
+6: jazz 0.31
+7: hop 0.28
+8: punk 0.26
+9: folk 0.25
+10: hip 0.22
+
+Jeezy Rockband

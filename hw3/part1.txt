@@ -1,0 +1,31 @@
+Question 1: Artist with most songs	b'Ike & Tina Turner' 207
+Question 2: Loudest artist	b'Shenggy' 3.93
+Question 3: Hotttnessst song	b'Immigrant Song (Album Version)' 1.00
+Question 4: Most total fade out artist	b'White Cowbell Oklahoma' 1181.15
+Question 5: Longest song	b'Grounation' 3034.91
+Question 5: Shortest song	b'Rainy Days And Mondays' 0.31
+Question 5: Median length song	b'Liberate (Live version) (Album Version)' 228.83
+Question 6: Top10 songs with most energy	
+1: b'Be Anything' 0.00
+2: b'Climate Control' 0.00
+3: b'Down The Road' 0.00
+4: b'Peter Pan' 0.00
+5: b'Ik Nazar Dekh Le Khawaja' 0.00
+6: b'Too Bad' 0.00
+7: b'Juke la banda' 0.00
+8: b'Kiss the Sky (Remix)' 0.00
+9: b'Babylon Days (Funk Harmony Park Remix)' 0.00
+10: b'Comedy' 0.00
+
+Question 6: Top10 songs with most danceability	
+1: b'Be Anything' 0.00
+2: b'Climate Control' 0.00
+3: b'Down The Road' 0.00
+4: b'Peter Pan' 0.00
+5: b'Ik Nazar Dekh Le Khawaja' 0.00
+6: b'Too Bad' 0.00
+7: b'Juke la banda' 0.00
+8: b'Kiss the Sky (Remix)' 0.00
+9: b'Babylon Days (Funk Harmony Park Remix)' 0.00
+10: b'Comedy' 0.00
+

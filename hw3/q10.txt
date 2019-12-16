@@ -1,0 +1,37 @@
+compressibility	min 2.67 max 8862.30 mean 239.13 stddev 1059.84
+duration	
+min 0.31 max 3034.91 mean 249.51 stddev 126.28
+n 987396 slope -2.26
+key	
+min 0.00 max 11.00 mean 5.32 stddev 3.60
+n 866613 slope -5.67
+loudness	
+min -58.18 max 4.32 mean -10.13 stddev 5.20
+n 987396 slope -39.83
+mode	
+min 0.00 max 1.00 mean 0.67 stddev 0.47
+n 987396 slope 18.91
+fade out	
+min 0.31 max 3030.62 mean 240.63 stddev 124.13
+n 987396 slope -2.28
+tempo	
+min 0.00 max 302.30 mean 123.89 stddev 35.06
+n 984216 slope -1.67
+time signature	
+min 0.00 max 7.00 mean 3.59 stddev 1.22
+n 986784 slope -66.96
+bytes in line	
+min 619.00 max 3920736.00 mean 204016.87 stddev 123719.56
+n 987396 slope -0.00
+hotttnesss	
+min 0.00 max 1.08 mean 0.38 stddev 0.13
+n 937418 slope -112.84
+latitude	
+min -53.10 max 70.70 mean 13.95 stddev 20.78
+n 353134 slope 0.28
+longitude	
+min -162.44 max 178.69 mean -20.88 stddev 43.17
+n 353134 slope 0.01
+year	
+min 0.00 max 2011.00 mean 1029.44 stddev 998.77
+n 508642 slope 2.43
